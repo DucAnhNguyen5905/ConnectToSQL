@@ -1,0 +1,6 @@
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess\obj\Debug\DataAccess.csproj.AssemblyReference.cache
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess\obj\Debug\DataAccess.csproj.CoreCompileInputs.cache
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess\bin\Debug\DataAccess.dll
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess\bin\Debug\DataAccess.pdb
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess\obj\Debug\DataAccess.dll
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess\obj\Debug\DataAccess.pdb

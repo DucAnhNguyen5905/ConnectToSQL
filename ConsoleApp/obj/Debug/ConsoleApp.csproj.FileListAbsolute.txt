@@ -1,0 +1,10 @@
+C:\Users\LENOVO\source\repos\C#CoBan\ConsoleApp\obj\Debug\ConsoleApp.csproj.AssemblyReference.cache
+C:\Users\LENOVO\source\repos\C#CoBan\ConsoleApp\obj\Debug\ConsoleApp.csproj.CoreCompileInputs.cache
+C:\Users\LENOVO\source\repos\C#CoBan\ConsoleApp\bin\Debug\ConsoleApp.exe.config
+C:\Users\LENOVO\source\repos\C#CoBan\ConsoleApp\bin\Debug\ConsoleApp.exe
+C:\Users\LENOVO\source\repos\C#CoBan\ConsoleApp\bin\Debug\ConsoleApp.pdb
+C:\Users\LENOVO\source\repos\C#CoBan\ConsoleApp\bin\Debug\DataAccess.dll
+C:\Users\LENOVO\source\repos\C#CoBan\ConsoleApp\bin\Debug\DataAccess.pdb
+C:\Users\LENOVO\source\repos\C#CoBan\ConsoleApp\obj\Debug\ConsoleApp.csproj.Up2Date
+C:\Users\LENOVO\source\repos\C#CoBan\ConsoleApp\obj\Debug\ConsoleApp.exe
+C:\Users\LENOVO\source\repos\C#CoBan\ConsoleApp\obj\Debug\ConsoleApp.pdb
