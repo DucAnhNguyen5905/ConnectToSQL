@@ -104,5 +104,55 @@ namespace DataAccess.Repository
 
             return result;
         }
+
+        public DataTable Account_Display()
+        {
+            DataTable accountsTable = new DataTable();
+
+            string connectionString = "Server=DESKTOP-A3R8611\\SQLEXPRESS;Database=CSharpCoBan;User Id=sa;Password=123456;Trusted_Connection=True;";
+            string query = "SELECT UserID, UserName, IsAdmin FROM Users";
+
+            try
+            {
+                using (SqlConnection con = new SqlConnection(connectionString))
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    con.Open();
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        accountsTable.Load(reader);
+                    }
+                }
+            }
+            catch (SqlException sqlEx)
+            {
+                Console.WriteLine("SQL Error: " + sqlEx.Message);
+                // Optionally log the exception here
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Unexpected Error: " + ex.Message);
+                // Optionally log the exception here
+            }
+
+            return accountsTable;
+        }
+
+        public int Account_Update(int userID, string newUserName, int isAdmin)
+        {
+            string query = "UPDATE [User] SET UserName = @UserName, IsAdmin = @IsAdmin WHERE UserID = @UserID";
+
+            using (SqlConnection con = new SqlConnection("Server=DESKTOP-A3R8611\\SQLEXPRESS;Database=CSharpCoBan;User Id=sa;Password=123456;Trusted_Connection=True;"))
+            using (SqlCommand cmd = new SqlCommand(query, con))
+            {
+                cmd.Parameters.AddWithValue("@UserID", userID);
+                cmd.Parameters.AddWithValue("@UserName", newUserName);
+                cmd.Parameters.AddWithValue("@IsAdmin", isAdmin);
+
+                con.Open();
+                return cmd.ExecuteNonQuery(); // Trả về số hàng bị ảnh hưởng
+            }
+        }
+
     }
 }

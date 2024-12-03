@@ -1,6 +1,7 @@
 ﻿using System;
 using DataAccess.Repository;
 using DataAccess.DO;
+using System.Data;
 
 namespace ConsoleApp
 {
@@ -18,7 +19,9 @@ namespace ConsoleApp
                 Console.WriteLine("1. Dang nhap");
                 Console.WriteLine("2. Them tai khoan");
                 Console.WriteLine("3. Xoa tai khoan");
-                Console.WriteLine("4. Thoat");
+                Console.WriteLine("4. Hien thi bang");
+                Console.WriteLine("5. Cap nhat tai khoan");
+                Console.WriteLine("6. Thoat");
                 Console.Write("Chon chuc nang: ");
                 string choice = Console.ReadLine();
 
@@ -37,6 +40,13 @@ namespace ConsoleApp
                         break;
 
                     case "4":
+                        ThucHienHienThiTaiKhoan(accountRepo);
+                        break;
+                    case "5":
+                        ThucHienCapNhatTaiKhoan(accountRepo);
+                        break;
+
+                    case "6":
                         exit = true;
                         Console.WriteLine("Thoat chuong trinh. Cam on ban da su dung!");
                         break;
@@ -140,6 +150,66 @@ namespace ConsoleApp
             catch (Exception ex)
             {
                 Console.WriteLine("Loi: " + ex.Message);
+            }
+
+            Console.ReadKey();
+        }
+
+        static void ThucHienHienThiTaiKhoan(AccountRepository repo)
+        {
+            AccountRepository accountRepo = new AccountRepository();
+            DataTable accounts = accountRepo.Account_Display();
+
+            Console.Clear();
+            Console.WriteLine("----- Hien Thi Bang -----");
+            foreach (DataRow row in accounts.Rows)
+            {
+                Console.WriteLine($"UserID: {row["UserID"]}, UserName: {row["UserName"]}, IsAdmin: {row["IsAdmin"]}");
+            }
+            Console.ReadKey();
+        }
+
+        static void ThucHienCapNhatTaiKhoan(AccountRepository repo)
+        {
+            Console.Clear();
+            Console.WriteLine("----- Cap Nhat Tai Khoan -----");
+
+            // Nhập UserID của tài khoản cần cập nhật
+            Console.Write("Nhap UserID cua tai khoan can cap nhat: ");
+            if (!int.TryParse(Console.ReadLine(), out int userID))
+            {
+                Console.WriteLine("UserID khong hop le!");
+                Console.ReadKey();
+                return;
+            }
+
+            // Nhập thông tin mới
+            Console.Write("Nhap ten nguoi dung moi: ");
+            string newUserName = Console.ReadLine();
+
+            Console.Write("Tai khoan la Admin? (1: Co / 0: Khong): ");
+            if (!int.TryParse(Console.ReadLine(), out int isAdmin))
+            {
+                Console.WriteLine("Lua chon khong hop le!");
+                isAdmin = 0;
+            }
+
+            try
+            {
+                // Gọi phương thức Account_Update
+                int rowsAffected = repo.Account_Update(userID, newUserName, isAdmin);
+                if (rowsAffected > 0)
+                {
+                    Console.WriteLine("Cap nhat tai khoan thanh cong!");
+                }
+                else
+                {
+                    Console.WriteLine("Khong tim thay tai khoan voi UserID da nhap.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Da xay ra loi: " + ex.Message);
             }
 
             Console.ReadKey();
