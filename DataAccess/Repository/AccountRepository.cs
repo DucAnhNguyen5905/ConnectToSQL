@@ -2,6 +2,7 @@
 using DataAccess.DO;
 using DataAccess.Interface;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -79,42 +80,69 @@ namespace DataAccess.Repository
         }
 
         // Phương thức xóa tài khoản
-        public int Account_Delete(string userid)
+        public int Account_Delete(string userIds)
         {
-            int result = 0;
+            int totalDeleted = 0;
 
             using (SqlConnection con = new SqlConnection("Server=DESKTOP-A3R8611\\SQLEXPRESS;Database=CSharpCoBan;User Id=sa;Password=123456;Trusted_Connection=True;"))
             {
-                using (SqlCommand cmd = new SqlCommand("SP_AccountDelete", con))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@UserID", userid);
+                con.Open();
 
-                    try
+                // Chia danh sách UserID (cách nhau bởi dấu phẩy)
+                string[] idList = userIds.Split(',');
+
+                foreach (string id in idList)
+                {
+                    string trimmedId = id.Trim();
+                    if (int.TryParse(trimmedId, out int userId)) // Kiểm tra ID hợp lệ
                     {
-                        con.Open();
-                        result = cmd.ExecuteNonQuery();
+                        using (SqlCommand cmd = new SqlCommand("SP_AccountDelete", con))
+                        {
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.AddWithValue("@UserID", userId);
+
+                            try
+                            {
+                                int result = cmd.ExecuteNonQuery();
+                                if (result > 0)
+                                {
+                                    totalDeleted++; // Đếm số tài khoản đã xóa thành công
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Lỗi khi xóa tài khoản UserID {userId}: {ex.Message}");
+                            }
+                        }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        Console.WriteLine("Loi khi xoa tai khoan: " + ex.Message);
+                        Console.WriteLine($"UserID '{trimmedId}' không hợp lệ, bỏ qua...");
                     }
                 }
             }
 
-            return result;
+            return totalDeleted;
         }
 
-        public DataTable Account_Display()
+
+        // Phương thức hiển thị tài khoản
+
+        public DataTable Account_Display(string sortOrder)
         {
             DataTable accountsTable = new DataTable();
 
-            string connectionString = "Server=DESKTOP-A3R8611\\SQLEXPRESS;Database=CSharpCoBan;User Id=sa;Password=123456;Trusted_Connection=True;";
-            string query = "SELECT UserID, UserName, IsAdmin FROM Users";
+            // Kiểm tra sortOrder chỉ nhận giá trị "ASC" hoặc "DESC"
+            if (sortOrder.ToUpper() != "ASC" && sortOrder.ToUpper() != "DESC")
+            {
+                sortOrder = "ASC"; // Mặc định sắp xếp tăng dần
+            }
+
+            string query = "SELECT UserID, UserName, PassWord, IsAdmin FROM dbo.[User] ORDER BY UserID " + sortOrder;
 
             try
             {
-                using (SqlConnection con = new SqlConnection(connectionString))
+                using (SqlConnection con = new SqlConnection("Server=DESKTOP-A3R8611\\SQLEXPRESS;Database=CSharpCoBan;User Id=sa;Password=123456;Trusted_Connection=True;"))
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
                     con.Open();
@@ -127,32 +155,51 @@ namespace DataAccess.Repository
             catch (SqlException sqlEx)
             {
                 Console.WriteLine("SQL Error: " + sqlEx.Message);
-                // Optionally log the exception here
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Unexpected Error: " + ex.Message);
-                // Optionally log the exception here
             }
 
             return accountsTable;
         }
 
-        public int Account_Update(int userID, string newUserName, int isAdmin)
+
+        public int Account_Update(int userID, string newUserName, int? isAdmin)
         {
-            string query = "UPDATE [User] SET UserName = @UserName, IsAdmin = @IsAdmin WHERE UserID = @UserID";
+            List<string> updateFields = new List<string>();
+            List<SqlParameter> parameters = new List<SqlParameter>();
+
+            if (!string.IsNullOrWhiteSpace(newUserName))
+            {
+                updateFields.Add("UserName = @UserName");
+                parameters.Add(new SqlParameter("@UserName", newUserName));
+            }
+
+            if (isAdmin.HasValue)
+            {
+                updateFields.Add("IsAdmin = @IsAdmin");
+                parameters.Add(new SqlParameter("@IsAdmin", isAdmin.Value));
+            }
+
+            // Nếu không có thay đổi thì không chạy truy vấn
+            if (updateFields.Count == 0)
+            {
+                return 0;
+            }
+
+            string query = $"UPDATE [User] SET {string.Join(", ", updateFields)} WHERE UserID = @UserID";
+            parameters.Add(new SqlParameter("@UserID", userID));
 
             using (SqlConnection con = new SqlConnection("Server=DESKTOP-A3R8611\\SQLEXPRESS;Database=CSharpCoBan;User Id=sa;Password=123456;Trusted_Connection=True;"))
             using (SqlCommand cmd = new SqlCommand(query, con))
             {
-                cmd.Parameters.AddWithValue("@UserID", userID);
-                cmd.Parameters.AddWithValue("@UserName", newUserName);
-                cmd.Parameters.AddWithValue("@IsAdmin", isAdmin);
-
+                cmd.Parameters.AddRange(parameters.ToArray());
                 con.Open();
                 return cmd.ExecuteNonQuery(); // Trả về số hàng bị ảnh hưởng
             }
         }
+
 
     }
 }
