@@ -54,7 +54,7 @@ namespace DataAccess.Repository
             {
                 using (SqlConnection con = dbHelper.DoConnect())
                 {
-                    using (SqlCommand cmd = new SqlCommand("SP_AccountInsert", con))
+                    using (SqlCommand cmd = new SqlCommand("Account_Insert", con))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@UserName", username);
