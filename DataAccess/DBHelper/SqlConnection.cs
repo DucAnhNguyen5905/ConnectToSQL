@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace DataAccess.DBHelper
 {
-    public class SqlConnectionDB : Connection<SqlConnection>
+    public class SqlConnectionDB : DBHelper.Connection<SqlConnection>
     {
         SqlConnection connection;
         public override System.Data.SqlClient.SqlConnection DoConnect()
         {
-            var dich_den = "Server=DESKTOP-A3R8611\\SQLEXPRESS;Database=CSharpCoBan;User Id=sa;Password=123456;Trusted_Connection=True;";
+            var dich_den = "Server=DESKTOP-A3R8611\\SQLEXPRESS;Database=UserManagement ;User Id=sa;Password=123456;Trusted_Connection=True;";
             connection = new System.Data.SqlClient.SqlConnection(dich_den);
 
             if (connection.State == System.Data.ConnectionState.Closed)

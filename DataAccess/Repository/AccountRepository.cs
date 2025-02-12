@@ -1,205 +1,161 @@
-﻿using DataAccess.DBHelper;
-using DataAccess.DO;
-using DataAccess.Interface;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Data;
 using System.Data.SqlClient;
+using DataAccess.DBHelper; // Import class kết nối
 
 namespace DataAccess.Repository
 {
-    public class AccountRepository : IAccountRepository
+    public class AccountRepository
     {
-        // Phương thức đăng nhập
+        private readonly SqlConnectionDB dbHelper = new SqlConnectionDB();
+
+        // Đăng nhập và lưu lịch sử
         public int Login(string username, string password)
         {
-            int result = 0;  // Mặc định trả về 0 (lỗi)
+            int result = 0;
             try
             {
-                var sqlconn = new SqlConnectionDB();
-                var conn = sqlconn.DoConnect();
+                using (SqlConnection con = dbHelper.DoConnect())
+                {
+                    using (SqlCommand cmd = new SqlCommand("SP_AccountLogin", con))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@UserName", username);
+                        cmd.Parameters.AddWithValue("@Password", password);
+                        cmd.Parameters.Add("@ResponseCode", SqlDbType.Int).Direction = ParameterDirection.Output;
 
-                var cmd = new SqlCommand("SP_AccountLogin", conn);
-                cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.ExecuteNonQuery();
+                        result = Convert.ToInt32(cmd.Parameters["@ResponseCode"].Value);
+                    }
 
-                cmd.Parameters.AddWithValue("@UserName", username);
-                cmd.Parameters.AddWithValue("@Password", password);
-                cmd.Parameters.Add("@ResponseCode", SqlDbType.Int).Direction = ParameterDirection.Output;
-
-                cmd.ExecuteNonQuery();
-                conn.Close();
-
-                // Lấy kết quả từ Output Parameter
-                result = Convert.ToInt32(cmd.Parameters["@ResponseCode"].Value);
+                    // Nếu đăng nhập thành công, lưu lịch sử đăng nhập
+                    if (result == 1)
+                    {
+                        using (SqlCommand logCmd = new SqlCommand("INSERT INTO LoginHistory (UserID, LoginTime, IPAddress) VALUES ((SELECT UserID FROM Users WHERE Username = @Username), GETDATE(), '127.0.0.1')", con))
+                        {
+                            logCmd.Parameters.AddWithValue("@Username", username);
+                            logCmd.ExecuteNonQuery();
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Lỗi khi kết nối: " + ex.Message);  // In thông báo lỗi nếu có sự cố
-                result = 0;  // Trả về lỗi
+                Console.WriteLine("Loi khi dang nhap: " + ex.Message);
             }
-
             return result;
         }
 
-
-        // Phương thức thêm tài khoản
-        public int Account_Insert(AccountDTO accountDTO)
+        // Thêm tài khoản
+        public int Account_Insert(string username, string password, int roleID, string email)
         {
             int responseCode = -99;
-
-            using (SqlConnection con = new SqlConnection("Server=DESKTOP-A3R8611\\SQLEXPRESS;Database=CSharpCoBan;User Id=sa;Password=123456;Trusted_Connection=True;"))
+            try
             {
-                using (SqlCommand cmd = new SqlCommand("SP_AccountInsert", con))
+                using (SqlConnection con = dbHelper.DoConnect())
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
-
-                    cmd.Parameters.AddWithValue("@UserName", accountDTO.UserName);
-                    cmd.Parameters.AddWithValue("@Password", accountDTO.PassWord);
-                    cmd.Parameters.AddWithValue("@IsAdmin", accountDTO.IsAdmin);
-
-                    SqlParameter responseParam = new SqlParameter("@Responsecode", SqlDbType.Int)
+                    using (SqlCommand cmd = new SqlCommand("SP_AccountInsert", con))
                     {
-                        Direction = ParameterDirection.Output
-                    };
-                    cmd.Parameters.Add(responseParam);
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@UserName", username);
+                        cmd.Parameters.AddWithValue("@Password", password);
+                        cmd.Parameters.AddWithValue("@RoleID", roleID);
+                        cmd.Parameters.AddWithValue("@Email", email);
 
-                    try
-                    {
-                        con.Open();
+                        SqlParameter responseParam = new SqlParameter("@ResponseCode", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+                        cmd.Parameters.Add(responseParam);
+
                         cmd.ExecuteNonQuery();
                         responseCode = (int)responseParam.Value;
                     }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Lỗi khi thêm tài khoản: " + ex.Message);
-                    }
                 }
-            }
-
-            return responseCode;
-        }
-
-        // Phương thức xóa tài khoản
-        public int Account_Delete(string userIds)
-        {
-            int totalDeleted = 0;
-
-            using (SqlConnection con = new SqlConnection("Server=DESKTOP-A3R8611\\SQLEXPRESS;Database=CSharpCoBan;User Id=sa;Password=123456;Trusted_Connection=True;"))
-            {
-                con.Open();
-
-                // Chia danh sách UserID (cách nhau bởi dấu phẩy)
-                string[] idList = userIds.Split(',');
-
-                foreach (string id in idList)
-                {
-                    string trimmedId = id.Trim();
-                    if (int.TryParse(trimmedId, out int userId)) // Kiểm tra ID hợp lệ
-                    {
-                        using (SqlCommand cmd = new SqlCommand("SP_AccountDelete", con))
-                        {
-                            cmd.CommandType = CommandType.StoredProcedure;
-                            cmd.Parameters.AddWithValue("@UserID", userId);
-
-                            try
-                            {
-                                int result = cmd.ExecuteNonQuery();
-                                if (result > 0)
-                                {
-                                    totalDeleted++; // Đếm số tài khoản đã xóa thành công
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine($"Lỗi khi xóa tài khoản UserID {userId}: {ex.Message}");
-                            }
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine($"UserID '{trimmedId}' không hợp lệ, bỏ qua...");
-                    }
-                }
-            }
-
-            return totalDeleted;
-        }
-
-
-        // Phương thức hiển thị tài khoản
-
-        public DataTable Account_Display(string sortOrder)
-        {
-            DataTable accountsTable = new DataTable();
-
-            // Kiểm tra sortOrder chỉ nhận giá trị "ASC" hoặc "DESC"
-            if (sortOrder.ToUpper() != "ASC" && sortOrder.ToUpper() != "DESC")
-            {
-                sortOrder = "ASC"; // Mặc định sắp xếp tăng dần
-            }
-
-            string query = "SELECT UserID, UserName, PassWord, IsAdmin FROM dbo.[User] ORDER BY UserID " + sortOrder;
-
-            try
-            {
-                using (SqlConnection con = new SqlConnection("Server=DESKTOP-A3R8611\\SQLEXPRESS;Database=CSharpCoBan;User Id=sa;Password=123456;Trusted_Connection=True;"))
-                using (SqlCommand cmd = new SqlCommand(query, con))
-                {
-                    con.Open();
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        accountsTable.Load(reader);
-                    }
-                }
-            }
-            catch (SqlException sqlEx)
-            {
-                Console.WriteLine("SQL Error: " + sqlEx.Message);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Unexpected Error: " + ex.Message);
+                Console.WriteLine("Loi khi them tai khoan: " + ex.Message);
             }
+            return responseCode;
+        }
 
+        // Xóa tài khoản
+        public int Account_Delete(int userId)
+        {
+            int result = 0;
+            try
+            {
+                using (SqlConnection con = dbHelper.DoConnect())
+                {
+                    using (SqlCommand cmd = new SqlCommand("DELETE FROM Users WHERE UserID = @UserID", con))
+                    {
+                        cmd.Parameters.AddWithValue("@UserID", userId);
+                        result = cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Loi khi xoa tai khoan: " + ex.Message);
+            }
+            return result;
+        }
+
+        // Hiển thị danh sách tài khoản và vai trò
+        public DataTable GetUsersWithRoles()
+        {
+            DataTable accountsTable = new DataTable();
+            try
+            {
+                using (SqlConnection con = dbHelper.DoConnect())
+                {
+                    string query = @"
+                        SELECT u.UserID, u.Username, u.Email, u.RegisterDate, r.RoleName 
+                        FROM Users u
+                        INNER JOIN UserRoles r ON u.RoleID = r.RoleID";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            accountsTable.Load(reader);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Loi khi lay danh sach tai khoan: " + ex.Message);
+            }
             return accountsTable;
         }
 
-
-        public int Account_Update(int userID, string newUserName, int? isAdmin)
+        // Lấy lịch sử đăng nhập của một người dùng
+        public DataTable GetLoginHistory(int userId)
         {
-            List<string> updateFields = new List<string>();
-            List<SqlParameter> parameters = new List<SqlParameter>();
-
-            if (!string.IsNullOrWhiteSpace(newUserName))
+            DataTable loginHistoryTable = new DataTable();
+            try
             {
-                updateFields.Add("UserName = @UserName");
-                parameters.Add(new SqlParameter("@UserName", newUserName));
-            }
+                using (SqlConnection con = dbHelper.DoConnect())
+                {
+                    string query = "SELECT * FROM LoginHistory WHERE UserID = @UserID ORDER BY LoginTime DESC";
 
-            if (isAdmin.HasValue)
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("@UserID", userId);
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            loginHistoryTable.Load(reader);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
             {
-                updateFields.Add("IsAdmin = @IsAdmin");
-                parameters.Add(new SqlParameter("@IsAdmin", isAdmin.Value));
+                Console.WriteLine("Loi khi lay lich su dang nhap: " + ex.Message);
             }
-
-            // Nếu không có thay đổi thì không chạy truy vấn
-            if (updateFields.Count == 0)
-            {
-                return 0;
-            }
-
-            string query = $"UPDATE [User] SET {string.Join(", ", updateFields)} WHERE UserID = @UserID";
-            parameters.Add(new SqlParameter("@UserID", userID));
-
-            using (SqlConnection con = new SqlConnection("Server=DESKTOP-A3R8611\\SQLEXPRESS;Database=CSharpCoBan;User Id=sa;Password=123456;Trusted_Connection=True;"))
-            using (SqlCommand cmd = new SqlCommand(query, con))
-            {
-                cmd.Parameters.AddRange(parameters.ToArray());
-                con.Open();
-                return cmd.ExecuteNonQuery(); // Trả về số hàng bị ảnh hưởng
-            }
+            return loginHistoryTable;
         }
-
-
     }
 }
