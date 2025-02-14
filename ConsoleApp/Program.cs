@@ -1,6 +1,10 @@
 ﻿using DataAccess.Repository;
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Text;
+using System.IO;
+using ExcelDataReader;
 
 namespace AccountManagement
 {
@@ -9,6 +13,7 @@ namespace AccountManagement
         static void Main(string[] args)
         {
             AccountRepository accountRepository = new AccountRepository();
+
             while (true)
             {
                 Console.WriteLine("\n=== HE THONG QUAN LY NGUOI DUNG ===");
@@ -16,8 +21,9 @@ namespace AccountManagement
                 Console.WriteLine("2. Tao tai khoan moi");
                 Console.WriteLine("3. Xoa tai khoan");
                 Console.WriteLine("4. Dang nhap");
-                Console.WriteLine("5. Xem lic su dang nhap");
-                Console.WriteLine("6. Thoat");
+                Console.WriteLine("5. Xem lich su dang nhap");
+                Console.WriteLine("6. Them du lieu vào database bang file Excel");
+                Console.WriteLine("7. Thoat");
                 Console.Write("Lua chon cua ban: ");
 
                 string choice = Console.ReadLine();
@@ -34,7 +40,7 @@ namespace AccountManagement
                         }
                         else
                         {
-                            Console.WriteLine("Khong tim thay !!!.");
+                            Console.WriteLine("Khong tim thay tai khoan.");
                         }
                         break;
 
@@ -46,14 +52,21 @@ namespace AccountManagement
                         Console.Write("Nhap Role ID: ");
                         if (!int.TryParse(Console.ReadLine(), out int roleId))
                         {
-                            Console.WriteLine("ID khong co!.");
+                            Console.WriteLine("ID khong hop le.");
                             break;
                         }
                         Console.Write("Nhap Email: ");
                         string email = Console.ReadLine();
 
                         int insertResponse = accountRepository.Account_Insert(username, password, roleId, email);
-                        Console.WriteLine(insertResponse == 1 ? "Them thanh cong." : "Them that bai.");
+                        if (insertResponse < 0)
+                        {
+                            Console.WriteLine(insertResponse == -2 ? "Them that bai do trung username." : "Loi khong xac dinh.");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Them moi thanh cong.");
+                        }
                         break;
 
                     case "3":
@@ -61,7 +74,7 @@ namespace AccountManagement
                         if (int.TryParse(Console.ReadLine(), out int id))
                         {
                             int result = accountRepository.Account_Delete(id);
-                            Console.WriteLine(result > 0 ? "Xoa tai khoan thanh cong." : "Khong tim thay tai khoan/ Xoa that bai.");
+                            Console.WriteLine(result > 0 ? "Xoa tai khoan thanh cong." : "Khong tim thay tai khoan.");
                         }
                         else
                         {
@@ -76,14 +89,7 @@ namespace AccountManagement
                         string loginPassword = Console.ReadLine();
 
                         int loginResult = accountRepository.Login(loginUsername, loginPassword);
-                        if (loginResult == 1)
-                        {
-                            Console.WriteLine("Dang nhap thanh cong.");
-                        }
-                        else
-                        {
-                            Console.WriteLine(" username hoac password bi sai.");
-                        }
+                        Console.WriteLine(loginResult == 1 ? "Dang nhap thanh cong." : "Username hoac password sai.");
                         break;
 
                     case "5":
@@ -100,7 +106,7 @@ namespace AccountManagement
                             }
                             else
                             {
-                                Console.WriteLine("khong tim thay lich su dang nhap.");
+                                Console.WriteLine("Khong tim thay lich su dang nhap.");
                             }
                         }
                         else
@@ -110,11 +116,66 @@ namespace AccountManagement
                         break;
 
                     case "6":
+                        Console.Write("Nhap duong dan file Excel: ");
+                        string filePath = Console.ReadLine();
+                        if (File.Exists(filePath))
+                        {
+                            try
+                            {
+                                DataTable excelData = ExcelHelper.ReadExcelToDataTable(filePath);
+                                List<string> errors = accountRepository.ImportExcelDataToDB(excelData);
+                                if (errors.Count == 0)
+                                {
+                                    Console.WriteLine("Import thanh cong!");
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Co loi khi import:");
+                                    errors.ForEach(Console.WriteLine);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Loi khi doc file Excel: {ex.Message}");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("File khong ton tai!");
+                        }
+                        break;
+
+                    case "7":
+                        Console.WriteLine("Thoat chuong trinh...");
                         return;
 
                     default:
-                        Console.WriteLine("Lua chon khong phu hop.");
+                        Console.WriteLine("Lua chon khong hop le. Vui long thu lai!");
                         break;
+                }
+            }
+        }
+    }
+
+    class ExcelHelper
+    {
+        public static DataTable ReadExcelToDataTable(string filePath)
+        {
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+
+            using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
+            {
+                using (var reader = ExcelReaderFactory.CreateReader(stream))
+                {
+                    var dataSet = reader.AsDataSet(new ExcelDataSetConfiguration()
+                    {
+                        ConfigureDataTable = (_) => new ExcelDataTableConfiguration()
+                        {
+                            UseHeaderRow = true
+                        }
+                    });
+
+                    return dataSet.Tables[0]; // Lấy sheet đầu tiên
                 }
             }
         }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DataAccess.DBHelper
 {
-    public class SqlConnectionDB : DBHelper.Connection<SqlConnection>
+    public class SqlConnectionDB : DBHelper.DBHelperConnection<SqlConnection>
     {
         SqlConnection connection;
         public override System.Data.SqlClient.SqlConnection DoConnect()

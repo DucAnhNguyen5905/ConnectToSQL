@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DataAccess.DBHelper
 {
-    public abstract class Connection<T>
+    public abstract class DBHelperConnection<T>
     {
         public abstract T DoConnect();
     }

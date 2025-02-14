@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
-using DataAccess.DBHelper; // Import class kết nối
-
+using DataAccess.DBHelper;
+using System.IO;
+using ExcelDataReader;
+using System.Collections.Generic;
 namespace DataAccess.Repository
 {
     public class AccountRepository
     {
-        private readonly SqlConnectionDB dbHelper = new SqlConnectionDB();
-
+        private readonly SqlConnectionDB dbHelper = new SqlConnectionDB();        
+        
         // Đăng nhập và lưu lịch sử
         public int Login(string username, string password)
         {
@@ -17,7 +19,7 @@ namespace DataAccess.Repository
             {
                 using (SqlConnection con = dbHelper.DoConnect())
                 {
-                    using (SqlCommand cmd = new SqlCommand("SP_AccountLogin", con))
+                    using (SqlCommand cmd = new SqlCommand("Login", con))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@UserName", username);
@@ -157,5 +159,73 @@ namespace DataAccess.Repository
             }
             return loginHistoryTable;
         }
+
+        // Phương thức nhập người dùng từ file Excel
+        public List<string> ImportExcelDataToDB(DataTable excelData)
+        {
+            List<string> errorMessages = new List<string>(); // Danh sách lỗi
+
+            try
+            {
+                using (SqlConnection con = dbHelper.DoConnect())
+                {
+                    using (SqlCommand cmd = new SqlCommand("ImportAccountbyExcel", con))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        // Duyệt từng dòng trong DataTable để nhập dữ liệu
+                        foreach (DataRow row in excelData.Rows)
+                        {
+                            cmd.Parameters.Clear(); // Xóa tham số cũ
+
+                            cmd.Parameters.AddWithValue("@UserName", row["UserName"]);
+                            cmd.Parameters.AddWithValue("@Password", row["Password"]);
+                            cmd.Parameters.AddWithValue("@RoleID", Convert.ToInt32(row["RoleID"]));
+                            cmd.Parameters.AddWithValue("@Email", row["Email"]);
+
+                            SqlParameter responseParam = new SqlParameter("@ResponseCode", SqlDbType.Int)
+                            {
+                                Direction = ParameterDirection.Output
+                            };
+                            cmd.Parameters.Add(responseParam);
+
+                            cmd.ExecuteNonQuery();
+                            int responseCode = (int)responseParam.Value;
+
+                            // Kiểm tra mã phản hồi và thêm vào danh sách lỗi nếu có
+                            if (responseCode != 0)
+                            {
+                                errorMessages.Add($"loi: Tai khoan {row["UserName"]} khong the nhap, ma loi: {responseCode}");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessages.Add("Loi he thong: " + ex.Message);
+            }
+
+            return errorMessages; // Trả về danh sách lỗi
+        }
+
+        public static class ExcelHelper
+        {
+            public static DataTable ReadExcelToDataTable(string filePath)
+            {
+                System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+
+                using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
+                {
+                    using (var reader = ExcelReaderFactory.CreateReader(stream))
+                    {
+                        var result = reader.AsDataSet();
+                        return result.Tables[0]; // Trả về sheet đầu tiên
+                    }
+                }
+            }
+        }
+
     }
 }
+
