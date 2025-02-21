@@ -35,3 +35,5 @@ C:\Users\LENOVO\source\repos\C#CoBan\ConsoleApp\bin\Debug\System.Memory.xml
 C:\Users\LENOVO\source\repos\C#CoBan\ConsoleApp\bin\Debug\System.Numerics.Vectors.xml
 C:\Users\LENOVO\source\repos\C#CoBan\ConsoleApp\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
 C:\Users\LENOVO\source\repos\C#CoBan\ConsoleApp\bin\Debug\System.Text.Encoding.CodePages.xml
+C:\Users\LENOVO\source\repos\C#CoBan\ConsoleApp\bin\Debug\UserManagement.Common.dll
+C:\Users\LENOVO\source\repos\C#CoBan\ConsoleApp\bin\Debug\UserManagement.Common.pdb

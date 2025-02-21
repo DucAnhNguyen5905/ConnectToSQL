@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataAccess
+namespace DataAccess.DO.Request
 {
-    internal class ExcelHelper
+    internal class Account_Request
     {
     }
 }

@@ -5,45 +5,55 @@ using DataAccess.DBHelper;
 using System.IO;
 using ExcelDataReader;
 using System.Collections.Generic;
+using DataAccess.Interface;
+using DataAccess.DO;
+using DataAccess.DO.Request_data;
+using System.ComponentModel.DataAnnotations;
+using System.Text;
+using UserManagement.Common;
 namespace DataAccess.Repository
 {
-    public class AccountRepository
+    public class AccountRepository : IAccountRepository
     {
-        private readonly SqlConnectionDB dbHelper = new SqlConnectionDB();        
-        
+        private readonly SqlConnectionDB dbHelper = new SqlConnectionDB();
+
         // Đăng nhập và lưu lịch sử
         public int Login(string username, string password)
         {
             int result = 0;
             try
             {
-                using (SqlConnection con = dbHelper.DoConnect())
-                {
-                    using (SqlCommand cmd = new SqlCommand("Login", con))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@UserName", username);
-                        cmd.Parameters.AddWithValue("@Password", password);
-                        cmd.Parameters.Add("@ResponseCode", SqlDbType.Int).Direction = ParameterDirection.Output;
+                var sqlconn = new SqlConnectionDB();
+                var conn = sqlconn.DoConnect();
 
-                        cmd.ExecuteNonQuery();
-                        result = Convert.ToInt32(cmd.Parameters["@ResponseCode"].Value);
-                    }
+                using (var cmd = new SqlCommand("Login", conn))
+                {
+                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@UserName", username);
+                    cmd.Parameters.AddWithValue("@Password", password);
+                    cmd.Parameters.Add("@ResponseCode", System.Data.SqlDbType.Int).Direction = System.Data.ParameterDirection.Output;
+
+                    cmd.ExecuteNonQuery();
+                    result = cmd.Parameters["@ResponseCode"].Value != DBNull.Value ? Convert.ToInt32(cmd.Parameters["@ResponseCode"].Value) : 0;
 
                     // Nếu đăng nhập thành công, lưu lịch sử đăng nhập
                     if (result == 1)
                     {
-                        using (SqlCommand logCmd = new SqlCommand("INSERT INTO LoginHistory (UserID, LoginTime, IPAddress) VALUES ((SELECT UserID FROM Users WHERE Username = @Username), GETDATE(), '127.0.0.1')", con))
+                        using (var logCmd = new SqlCommand("GetLoginHistory", conn))
                         {
+                            logCmd.CommandType = System.Data.CommandType.StoredProcedure;
                             logCmd.Parameters.AddWithValue("@Username", username);
                             logCmd.ExecuteNonQuery();
                         }
                     }
                 }
+
+                conn.Close();
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Loi khi dang nhap: " + ex.Message);
+                throw;
             }
             return result;
         }
@@ -160,42 +170,107 @@ namespace DataAccess.Repository
             return loginHistoryTable;
         }
 
-        // Phương thức nhập người dùng từ file Excel
         public List<string> ImportExcelDataToDB(DataTable excelData)
         {
-            List<string> errorMessages = new List<string>(); // Danh sách lỗi
+            List<string> danhSachLoi = new List<string>();
+
+            if (excelData == null || excelData.Rows.Count == 0)
+            {
+                danhSachLoi.Add(" Loi: File Excel khong co du lieu!");
+                return danhSachLoi;
+            }
 
             try
             {
                 using (SqlConnection con = dbHelper.DoConnect())
                 {
+                    con.Open(); // Mo ket noi truoc khi thuc hien lenh SQL
+
                     using (SqlCommand cmd = new SqlCommand("ImportAccountbyExcel", con))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
 
-                        // Duyệt từng dòng trong DataTable để nhập dữ liệu
-                        foreach (DataRow row in excelData.Rows)
+                        string email = ""; //  Khai bao email truoc vong lap
+
+                        for (int rowIndex = 0; rowIndex < excelData.Rows.Count; rowIndex++)
                         {
-                            cmd.Parameters.Clear(); // Xóa tham số cũ
+                            DataRow row = excelData.Rows[rowIndex];
+                            bool coLoi = false;
+                            StringBuilder noiDungLoi = new StringBuilder($" Loi dong {rowIndex + 1}: ");
 
-                            cmd.Parameters.AddWithValue("@UserName", row["UserName"]);
-                            cmd.Parameters.AddWithValue("@Password", row["Password"]);
-                            cmd.Parameters.AddWithValue("@RoleID", Convert.ToInt32(row["RoleID"]));
-                            cmd.Parameters.AddWithValue("@Email", row["Email"]);
-
-                            SqlParameter responseParam = new SqlParameter("@ResponseCode", SqlDbType.Int)
+                            try
                             {
-                                Direction = ParameterDirection.Output
-                            };
-                            cmd.Parameters.Add(responseParam);
+                                cmd.Parameters.Clear();
 
-                            cmd.ExecuteNonQuery();
-                            int responseCode = (int)responseParam.Value;
+                                string userName = row["UserName"].ToString().Trim();
+                                string password = row["Password"].ToString().Trim();
+                                email = row["Email"].ToString().Trim(); //  Cap nhat bien email
+                                int roleID;
 
-                            // Kiểm tra mã phản hồi và thêm vào danh sách lỗi nếu có
-                            if (responseCode != 0)
+                                // Kiem tra RoleID co hop le khong
+                                if (!int.TryParse(row["RoleID"].ToString(), out roleID))
+                                {
+                                    noiDungLoi.Append("Cot RoleID khong hop le. ");
+                                    coLoi = true;
+                                }
+
+                                // Kiem tra UserName hop le
+                                if (!ValidateData.Check_String(userName))
+                                {
+                                    noiDungLoi.Append("Cot UserName khong hop le. ");
+                                    coLoi = true;
+                                }
+
+                                // Kiem tra Email hop le
+                                if (!ValidateData.Check_Email(email))
+                                {
+                                    noiDungLoi.Append("Cot Email khong hop le. ");
+                                    coLoi = true;
+                                }
+
+                                if (coLoi)
+                                {
+                                    danhSachLoi.Add(noiDungLoi.ToString());
+                                    continue;
+                                }
+
+                                // Them tham so cho Stored Procedure
+                                cmd.Parameters.AddWithValue("@UserName", userName);
+                                cmd.Parameters.AddWithValue("@Password", password);
+                                cmd.Parameters.AddWithValue("@RoleID", roleID);
+                                cmd.Parameters.AddWithValue("@Email", email);
+
+                                SqlParameter responseParam = new SqlParameter("@ResponseCode", SqlDbType.Int)
+                                {
+                                    Direction = ParameterDirection.Output
+                                };
+                                cmd.Parameters.Add(responseParam);
+
+                                cmd.ExecuteNonQuery();
+
+                                // Kiem tra ma phan hoi tu Stored Procedure
+                                int responseCode = (responseParam.Value == DBNull.Value) ? -99 : (int)responseParam.Value;
+
+                                if (responseCode == -1)
+                                {
+                                    danhSachLoi.Add($" Loi dong {rowIndex + 1}: Email '{email}' da ton tai.");
+                                }
+                                else if (responseCode != 0)
+                                {
+                                    danhSachLoi.Add($" Loi dong {rowIndex + 1}: Khong the nhap tai khoan '{userName}', ma loi: {responseCode}");
+                                }
+                            }
+                            catch (SqlException sqlEx)
                             {
-                                errorMessages.Add($"loi: Tai khoan {row["UserName"]} khong the nhap, ma loi: {responseCode}");
+                                string loiChiTiet = sqlEx.Message.Contains("UNIQUE KEY constraint")
+                                    ? $" Loi dong {rowIndex + 1}: Email '{email}' da ton tai trong he thong."
+                                    : $" Loi dong {rowIndex + 1}: Loi SQL - {sqlEx.Message}";
+
+                                danhSachLoi.Add(loiChiTiet);
+                            }
+                            catch (Exception ex)
+                            {
+                                danhSachLoi.Add($" Loi dong {rowIndex + 1}: Loi he thong - {ex.Message}");
                             }
                         }
                     }
@@ -203,11 +278,39 @@ namespace DataAccess.Repository
             }
             catch (Exception ex)
             {
-                errorMessages.Add("Loi he thong: " + ex.Message);
+                danhSachLoi.Add($" Loi he thong khong xac dinh: {ex.Message}");
             }
 
-            return errorMessages; // Trả về danh sách lỗi
+            return danhSachLoi;
         }
+
+        public int Account_Insert(AccountDTO accountDTO)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int GetLoginHistory(AccountDTO accountDTO)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int GetUserList(AccountDTO accountDTO)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int ImportAccountbyExcel(AccountDTO accountDTO)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<AccountDTO> GetAccountList(Account_Request requestData)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+   
 
         public static class ExcelHelper
         {
@@ -225,7 +328,6 @@ namespace DataAccess.Repository
                 }
             }
         }
-
-    }
+    
 }
 

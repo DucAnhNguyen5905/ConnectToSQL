@@ -1,0 +1,6 @@
+C:\Users\LENOVO\source\repos\C#CoBan\UserManagement.Common\bin\Debug\UserManagement.Common.dll
+C:\Users\LENOVO\source\repos\C#CoBan\UserManagement.Common\bin\Debug\UserManagement.Common.pdb
+C:\Users\LENOVO\source\repos\C#CoBan\UserManagement.Common\obj\Debug\UserManagement.Common.csproj.AssemblyReference.cache
+C:\Users\LENOVO\source\repos\C#CoBan\UserManagement.Common\obj\Debug\UserManagement.Common.csproj.CoreCompileInputs.cache
+C:\Users\LENOVO\source\repos\C#CoBan\UserManagement.Common\obj\Debug\UserManagement.Common.dll
+C:\Users\LENOVO\source\repos\C#CoBan\UserManagement.Common\obj\Debug\UserManagement.Common.pdb

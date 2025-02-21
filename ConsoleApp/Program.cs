@@ -89,7 +89,7 @@ namespace AccountManagement
                         string loginPassword = Console.ReadLine();
 
                         int loginResult = accountRepository.Login(loginUsername, loginPassword);
-                        Console.WriteLine(loginResult == 1 ? "Dang nhap thanh cong." : "Username hoac password sai.");
+                        Console.WriteLine(loginResult == 1 ? "Dang nhap thanh cong." : "Username hoac password sai.");  
                         break;
 
                     case "5":
@@ -101,7 +101,7 @@ namespace AccountManagement
                             {
                                 foreach (DataRow row in historyTable.Rows)
                                 {
-                                    Console.WriteLine($"Login Time: {row["LoginTime"]}, IP Address: {row["IPAddress"]}");
+                                    Console.WriteLine($"Login Time: {row["LoginTime"]}");
                                 }
                             }
                             else
@@ -118,32 +118,43 @@ namespace AccountManagement
                     case "6":
                         Console.Write("Nhap duong dan file Excel: ");
                         string filePath = Console.ReadLine();
-                        if (File.Exists(filePath))
+
+                        if (!File.Exists(filePath))
                         {
-                            try
+                            Console.WriteLine(" Loi: File khong ton tai!");
+                            break;
+                        }
+
+                        try
+                        {
+                            DataTable excelData = ExcelHelper.ReadExcelToDataTable(filePath);
+
+                            if (excelData == null || excelData.Rows.Count == 0)
                             {
-                                DataTable excelData = ExcelHelper.ReadExcelToDataTable(filePath);
-                                List<string> errors = accountRepository.ImportExcelDataToDB(excelData);
-                                if (errors.Count == 0)
-                                {
-                                    Console.WriteLine("Import thanh cong!");
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Co loi khi import:");
-                                    errors.ForEach(Console.WriteLine);
-                                }
+                                Console.WriteLine(" Loi: File Excel khong co du lieu.");
+                                break;
                             }
-                            catch (Exception ex)
+
+                            AccountRepository repo = new AccountRepository();
+                            List<string> danhSachLoi = repo.ImportExcelDataToDB(excelData);
+
+                            if (danhSachLoi.Count == 0)
                             {
-                                Console.WriteLine($"Loi khi doc file Excel: {ex.Message}");
+                                Console.WriteLine(" Them thanh cong!");
+                            }
+                            else
+                            {
+                                Console.WriteLine("\n Co loi khi them du lieu:");
+                                danhSachLoi.ForEach(loi => Console.WriteLine($"   - {loi}"));
                             }
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            Console.WriteLine("File khong ton tai!");
+                            Console.WriteLine($" Loi khi doc file Excel: {ex.Message}");
                         }
                         break;
+
+
 
                     case "7":
                         Console.WriteLine("Thoat chuong trinh...");

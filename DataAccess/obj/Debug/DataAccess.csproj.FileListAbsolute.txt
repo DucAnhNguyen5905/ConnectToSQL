@@ -32,3 +32,5 @@ C:\Users\LENOVO\source\repos\C#CoBan\DataAccess\bin\Debug\System.Text.Encoding.C
 C:\Users\LENOVO\source\repos\C#CoBan\DataAccess\bin\Debug\ExcelDataReader.DataSet.pdb
 C:\Users\LENOVO\source\repos\C#CoBan\DataAccess\bin\Debug\ExcelDataReader.DataSet.xml
 C:\Users\LENOVO\source\repos\C#CoBan\DataAccess\bin\Debug\System.Text.Encoding.CodePages.xml
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess\bin\Debug\UserManagement.Common.dll
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess\bin\Debug\UserManagement.Common.pdb
