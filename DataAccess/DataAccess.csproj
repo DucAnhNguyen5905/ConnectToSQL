@@ -87,6 +87,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DBHelper\Connection.cs" />
+    <Compile Include="DBHelper\ExcelHelper.cs" />
     <Compile Include="DBHelper\SqlConnection.cs" />
     <Compile Include="DO\AccountDTO.cs" />
     <Compile Include="DO\Request_datalist\Account_Request.cs" />

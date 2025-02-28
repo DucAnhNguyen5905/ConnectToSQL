@@ -9,5 +9,7 @@ namespace DataAccess.DO.Request_data
     public class Account_Request
     {
         public string Username { get; set; }
+
+        public int? RoleID { get; set; }
     }
 }

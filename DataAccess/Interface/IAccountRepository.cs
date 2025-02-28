@@ -10,10 +10,11 @@ namespace DataAccess.Interface
 {
     public interface IAccountRepository
     {
-        int Login(string username, string password);
+        int Login(AccountDTO accountDTO);
 
         int Account_Insert(AccountDTO accountDTO);
 
+        int AccountDelete(AccountDTO accountDTO);
         int GetLoginHistory(AccountDTO accountDTO);
 
         int GetUserList(AccountDTO accountDTO);
