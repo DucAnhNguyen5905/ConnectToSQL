@@ -1,289 +1,336 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Collections.Generic;
-using System.Text;
+using DataAccess.DO;
+using DataAccess.DO.Request_data;
 using UserManagement.Common;
 using DataAccess.Interface;
 using DataAccess.DBHelper;
-using DataAccess.DO;
-using DataAccess.DO.Request_data;
+using System.Linq;
 
 namespace DataAccess.Repository
 {
     public class AccountRepository : IAccountRepository
     {
-        private readonly SqlConnectionDB dbHelper = new SqlConnectionDB();
-
-        // Phương thức chung để mở kết nối
-        private SqlConnection GetOpenConnection()
-        {
-            var conn = dbHelper.DoConnect();
-            if (conn.State != ConnectionState.Open)
-                conn.Open();
-            return conn;
-        }
-
-        // Đăng nhập
-        public int Login(string username, string password)
-        {
-            try
-            {
-                using (var conn = GetOpenConnection())
-                using (var cmd = new SqlCommand("Login", conn))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@UserName", username);
-                    cmd.Parameters.AddWithValue("@Password", password);
-                    cmd.Parameters.Add("@ResponseCode", SqlDbType.Int).Direction = ParameterDirection.Output;
-
-                    cmd.ExecuteNonQuery();
-                    int result = Convert.ToInt32(cmd.Parameters["@ResponseCode"].Value ?? 0);
-
-                    if (result == 1)
-                        SaveLoginHistory(username, conn);
-
-                    return result;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Lỗi khi đăng nhập: " + ex.Message);
-                return 0;
-            }
-        }
-
-        private void SaveLoginHistory(string username, SqlConnection conn)
-        {
-            try
-            {
-                using (var cmd = new SqlCommand("GetLoginHistory", conn))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@Username", username);
-                    cmd.ExecuteNonQuery();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Lỗi khi lưu lịch sử đăng nhập: " + ex.Message);
-            }
-        }
-
-        // Thêm tài khoản
-        public int Account_Insert(AccountDTO account)
-        {
-            try
-            {
-                using (var conn = GetOpenConnection())
-                using (var cmd = new SqlCommand("Account_Insert", conn))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@UserName", account.UserName);
-                    cmd.Parameters.AddWithValue("@Password", account.PassWord);
-                    cmd.Parameters.AddWithValue("@RoleID", account.RoleID);
-                    cmd.Parameters.AddWithValue("@Email", account.Email);
-
-                    var responseParam = new SqlParameter("@ResponseCode", SqlDbType.Int) { Direction = ParameterDirection.Output };
-                    cmd.Parameters.Add(responseParam);
-
-                    cmd.ExecuteNonQuery();
-                    return Convert.ToInt32(responseParam.Value ?? -99);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Lỗi khi thêm tài khoản: " + ex.Message);
-                return -99;
-            }
-        }
-
-        // Xóa tài khoản
-        public int Account_Delete(AccountDTO account)
-        {
-            try
-            {
-                using (var conn = GetOpenConnection())
-                using (var cmd = new SqlCommand("AccountDelete", conn))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@UserID", account.UserID);
-                    return cmd.ExecuteNonQuery();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Lỗi khi xóa tài khoản: " + ex.Message);
-                return 0;
-            }
-        }
-
-        // Lấy danh sách tài khoản
-        public DataTable GetUsersList()
-        {
-            using (var conn = GetOpenConnection())
-            using (SqlCommand cmd = new SqlCommand("GetUsersList", conn))
-            {
-                cmd.CommandType = CommandType.StoredProcedure; 
-
-                using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
-                {
-                    DataTable dt = new DataTable();
-                    adapter.Fill(dt);
-                    return dt;
-                }
-            }
-
-        }
-
-        // Lấy lịch sử đăng nhập
-        public DataTable GetLoginHistory(AccountDTO account)
-        {
-            return ExecuteStoredProcedure("GetLoginHistory", new SqlParameter("@UserID", account.UserID));
-        }
-
-        // Nhập dữ liệu từ Excel
-        public List<string> ImportExcelDataToDB(DataTable excelData)
-        {
-            List<string> errors = new List<string>();
-            if (excelData == null || excelData.Rows.Count == 0)
-            {
-                errors.Add("Loi: File khong có du lieu !");
-                return errors;
-            }
-
-            try
-            {
-                using (var conn = GetOpenConnection())
-                using (var cmd = new SqlCommand("ImportAccountbyExcel", conn))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-
-                    foreach (DataRow row in excelData.Rows)
-                    {
-                        cmd.Parameters.Clear();
-                        string userName = row["UserName"].ToString().Trim();
-                        string password = row["Password"].ToString().Trim();
-                        string email = row["Email"].ToString().Trim();
-                        if (!int.TryParse(row["RoleID"].ToString(), out int roleID) ||
-                            !ValidateData.Check_String(userName) ||
-                            !ValidateData.Check_Email(email))
-                        {
-                            errors.Add($"Loi dong {excelData.Rows.IndexOf(row) + 1}: Du lieu khong hop le.");
-                            continue;
-                        }
-
-                        cmd.Parameters.AddWithValue("@UserName", userName);
-                        cmd.Parameters.AddWithValue("@Password", password);
-                        cmd.Parameters.AddWithValue("@RoleID", roleID);
-                        cmd.Parameters.AddWithValue("@Email", email);
-                        var responseParam = new SqlParameter("@ResponseCode", SqlDbType.Int) { Direction = ParameterDirection.Output };
-                        cmd.Parameters.Add(responseParam);
-
-                        cmd.ExecuteNonQuery();
-                        int responseCode = Convert.ToInt32(responseParam.Value ?? -99);
-                        if (responseCode == -1)
-                            errors.Add($"Loi dong {excelData.Rows.IndexOf(row) + 1}: Email '{email}' da ton tai.");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                errors.Add("Loi he thong: " + ex.Message);
-            }
-
-            return errors;
-        }
-
-        // Phương thức chung thực hiện truy vấn SQL
-        private DataTable ExecuteQuery(string query)
-        {
-            DataTable table = new DataTable();
-            try
-            {
-                using (var conn = GetOpenConnection())
-                using (var cmd = new SqlCommand(query, conn))
-                using (var reader = cmd.ExecuteReader())
-                {
-                    table.Load(reader);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Loi khi thuc thi truy van: " + ex.Message);
-            }
-            return table;
-        }
-
-        // Phương thức chung thực hiện Stored Procedure
-        private DataTable ExecuteStoredProcedure(string storedProcedure, params SqlParameter[] parameters)
-        {
-            DataTable table = new DataTable();
-            try
-            {
-                using (var conn = GetOpenConnection())
-                using (var cmd = new SqlCommand(storedProcedure, conn))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddRange(parameters);
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        table.Load(reader);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Loi khi thuc thi Stored Procedure: " + ex.Message);
-            }
-            return table;
-        }
-
         public int Login(AccountDTO accountDTO)
         {
-            throw new NotImplementedException();
+            int responseCode = -1; // Mặc định là lỗi
+
+            try
+            {
+                using (var connection = DatabaseHelper.GetOpenConnection())
+                using (var command = new SqlCommand("SP_Account_Login", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    // Thêm tham số đầu vào
+                    command.Parameters.AddWithValue("@Username", accountDTO.UserName);
+                    command.Parameters.AddWithValue("@Password", accountDTO.PassWord);
+
+                    // Thêm tham số đầu ra để nhận mã phản hồi từ Stored Procedure
+                    SqlParameter outputParam = new SqlParameter("@ResponseCode", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    command.Parameters.Add(outputParam);
+
+                    // Thực thi Stored Procedure
+                    command.ExecuteNonQuery();
+
+                    // Lấy giá trị từ tham số đầu ra
+                    responseCode = (int)outputParam.Value;
+
+                    // Nếu đăng nhập thành công (responseCode == 1), lưu lịch sử đăng nhập
+                    if (responseCode == 1)
+                    {
+                        Console.WriteLine("Chuc mung!!!");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Loi he thong: {ex.Message}");
+            }
+
+            return responseCode;
+        }
+
+        public int Account_Insert(AccountDTO accountDTO)
+        {
+            int responseCode = -1;
+
+            try
+            {
+                using (var connection = DatabaseHelper.GetOpenConnection())
+                using (var command = new SqlCommand("SP_Account_Insert", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    // Thêm tham số đầu vào
+                    command.Parameters.AddWithValue("@Username", accountDTO.UserName);
+                    command.Parameters.AddWithValue("@Password", accountDTO.PassWord);
+                    command.Parameters.AddWithValue("@RoleID", accountDTO.RoleID);
+                    command.Parameters.AddWithValue("@Email", accountDTO.Email);
+
+                    // Thêm tham số đầu ra để nhận mã phản hồi từ Stored Procedure
+                    SqlParameter outputParam = new SqlParameter("@ResponseCode", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    command.Parameters.Add(outputParam);
+
+                    // Thực thi Stored Procedure
+                    command.ExecuteNonQuery();
+
+                    // Lấy giá trị từ tham số đầu ra
+                    responseCode = (int)outputParam.Value;
+
+                    if (responseCode == 1)
+                    {
+                        Console.WriteLine("Chuc mung!!!");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Loi he thong: {ex.Message}");
+            }
+            return responseCode;
+        }
+
+        public ResponseData AccountDelete(AccountDTO accountDTO)
+        {
+            ResponseData responseData = new ResponseData { responseCode = -1, responseMessage = "Loi khong xac dinh" };
+
+            try
+            {
+                using (var connection = DatabaseHelper.GetOpenConnection())
+                using (var command = new SqlCommand("SP_Account_Delete", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    // Thêm tham số đầu vào (Username)
+                    command.Parameters.Add(new SqlParameter("@UserName", SqlDbType.NVarChar, 50)
+                    {
+                        Value = string.IsNullOrEmpty(accountDTO.UserName) ? (object)DBNull.Value : accountDTO.UserName
+                    });
+
+                    // Thêm tham số đầu ra (ResponseCode)
+                    SqlParameter outputParam = new SqlParameter("@ResponseCode", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    command.Parameters.Add(outputParam);
+
+                    // Thực thi Stored Procedure
+                    command.ExecuteNonQuery();
+
+                    // Lấy giá trị từ tham số đầu ra
+                    responseData.responseCode = (int)command.Parameters["@ResponseCode"].Value;
+
+                    // Xử lý thông báo dựa trên mã phản hồi
+                    switch (responseData.responseCode)
+                    {
+                        case 1:
+                            responseData.responseMessage = "Xoa tai khoan thanh cong!";
+                            break;
+                        case -2:
+                            responseData.responseMessage = "Khong tim thay tai khoan de xoa!";
+                            break;
+                        case -3:
+                            responseData.responseMessage = "Khong co ban ghi nao bi xoa!";
+                            break;
+                        default:
+                            responseData.responseMessage = "Loi khong xac dinh!";
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                responseData.responseMessage = $"Loi khi xoa tai khoan: {ex.Message}";
+            }
+
+            return responseData;
         }
 
 
-        public int AccountDelete(AccountDTO accountDTO)
+        public ResponseData ImportAccountbyExcel(string filePath, out List<string> danhSachLoi)
         {
-            throw new NotImplementedException();
-        }
-       
+            ResponseData phanHoi = new ResponseData();
+            danhSachLoi = new List<string>();
+            int soLuongThanhCong = 0, soLuongLoi = 0;
 
-        public int GetUserList(AccountDTO accountDTO)
-        {
-            throw new NotImplementedException();
+            try
+            {
+                // Đọc dữ liệu từ Excel
+                DataTable bangDuLieu = ExcelHelper.ReadExcelToDataTable(filePath);
+
+                using (var ketNoi = DatabaseHelper.GetOpenConnection())
+                {
+                    foreach (DataRow dong in bangDuLieu.Rows)
+                    {
+                        try
+                        {
+                            using (SqlCommand lenh = new SqlCommand("SP_Account_ImportbyExcel", ketNoi))
+                            {
+                                lenh.CommandType = CommandType.StoredProcedure;
+
+                                // Lấy giá trị từ các cột
+                                string tenNguoiDung = dong["Username"].ToString().Trim();
+                                string matKhau = dong.Table.Columns.Contains("Password") ? dong["Password"].ToString().Trim() : "";
+
+                                // Kiểm tra Username và Password không được để trống
+                                if (string.IsNullOrEmpty(tenNguoiDung))
+                                {
+                                    danhSachLoi.Add($"Lỗi: Username không được bỏ trống.");
+                                    soLuongLoi++;
+                                    continue; // Bỏ qua dòng này và xử lý dòng tiếp theo
+                                }
+                                if (string.IsNullOrEmpty(matKhau))
+                                {
+                                    danhSachLoi.Add($"Loi: password cua {tenNguoiDung} dang bi null.");
+                                    soLuongLoi++;
+                                    continue;
+                                }
+
+                                string email = dong.Table.Columns.Contains("Email") ? dong["Email"].ToString().Trim() : "";
+                                if (!ValidateData.Check_Email(email))
+                                {
+                                    danhSachLoi.Add($"Loi: Email cua {tenNguoiDung} khong hop le.");
+                                    soLuongLoi++;
+                                    continue;
+                                }
+                                int maVaiTro = dong.Table.Columns.Contains("RoleID") && !string.IsNullOrEmpty(dong["RoleID"].ToString()) ? Convert.ToInt32(dong["RoleID"]) : 0;
+                                if (!ValidateData.IsInteger(dong["RoleID"].ToString()))
+                                {
+                                    danhSachLoi.Add($"Loi: RoleID cua {tenNguoiDung} khong hop le.");
+                                    soLuongLoi++;
+                                    continue;
+                                }
+
+                                lenh.Parameters.AddWithValue("@Username", tenNguoiDung);
+                                lenh.Parameters.AddWithValue("@Email", email);
+                                lenh.Parameters.AddWithValue("@RoleID", maVaiTro);
+                                lenh.Parameters.AddWithValue("@Password", matKhau);
+
+                                SqlParameter maPhanHoi = new SqlParameter("@ResponseCode", SqlDbType.Int) { Direction = ParameterDirection.Output };
+                                lenh.Parameters.Add(maPhanHoi);
+
+                                lenh.ExecuteNonQuery();
+                                int ketQua = (int)maPhanHoi.Value;
+
+                                if (ketQua == -2)
+                                {
+                                    danhSachLoi.Add($"Tai khoan {tenNguoiDung} da ton tai !");
+                                    soLuongLoi++;
+                                }
+                                else if (ketQua == -3)
+                                {
+                                    danhSachLoi.Add($"Dia chi {email} da ton tai !");
+                                    soLuongLoi++;
+                                }
+                                else if (ketQua == -4)
+                                {
+                                    danhSachLoi.Add($" Mat khau da ton tai !");
+                                    soLuongLoi++;
+                                }
+                                else if (ketQua == 1)
+                                {
+                                    soLuongThanhCong++;
+                                }
+                                else if (ketQua == -5)
+                                {
+                                    danhSachLoi.Add($" {tenNguoiDung} da ton tai !");
+                                    soLuongLoi++;
+                                }
+                                else
+                                {
+                                    danhSachLoi.Add($"Loi khong xac dinh (Ma loi: {ketQua} khi them tai khoan {tenNguoiDung}.");
+                                    soLuongLoi++;
+                                }
+
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            danhSachLoi.Add($"Lỗi khi xử lý tài khoản {dong["Username"]}: {ex.Message}");
+                            soLuongLoi++;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ResponseData { responseCode = -99, responseMessage = $"Lỗi hệ thống: {ex.Message}" };
+            }
+
+            return new ResponseData
+            {
+                responseCode = 1,
+                responseMessage = $"Nhap thanh cong {soLuongThanhCong} tai khoan, khong the them {soLuongLoi} tai khoan."
+            };
         }
 
-        public int ImportAccountbyExcel(AccountDTO accountDTO)
+        public List<AccountDTO> GetAccountList(AccountDTO accountDTO)
         {
-            throw new NotImplementedException();
-        }
+            List<AccountDTO> accounts = new List<AccountDTO>();
 
-        public List<AccountDTO> GetAccountList(Account_Request requestData)
-        {
-            throw new NotImplementedException();
-        }
+            ResponseData responseData = new ResponseData { responseCode = -1, responseMessage = "Lỗi không xác định" };
 
-        public int AccountDelete(int userId)
-        {
-            throw new NotImplementedException();
-        }
+            try
+            {
+                using (var connection = DatabaseHelper.GetOpenConnection())
+                using (var command = new SqlCommand("SP_Account_List", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
 
-        public List<string> ImportAccountbyExcel(DataTable dataTable)
-        {
-            throw new NotImplementedException();
-        }
+                    // Thêm tham số đầu vào (Username)
+                    command.Parameters.Add(new SqlParameter("@UserName", SqlDbType.NVarChar, 50)
+                    {
+                        Value = string.IsNullOrEmpty(accountDTO.UserName) ? (object)DBNull.Value : accountDTO.UserName
+                    });
 
-        public DataTable GetUserList()
-        {
-            throw new NotImplementedException();
-        }
+                    // Thêm tham số đầu ra (ResponseCode)
+                    SqlParameter outputParam = new SqlParameter("@ResponseCode", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    command.Parameters.Add(outputParam);
 
-        int IAccountRepository.GetLoginHistory(AccountDTO accountDTO)
-        {
-            throw new NotImplementedException();
+                    // Thực thi Stored Procedure
+                    command.ExecuteNonQuery();
+
+                    // Lấy giá trị từ tham số đầu ra
+                    responseData.responseCode = (int)command.Parameters["@ResponseCode"].Value;
+
+                    // Xử lý thông báo dựa trên mã phản hồi
+                    switch (responseData.responseCode)
+                    {
+                        case 1:
+                            responseData.responseMessage = "Hien thi thanh cong!";
+                            break;
+                        case -2:
+                            responseData.responseMessage = "Không tìm thấy tài khoản !";
+                            break;
+                        case -3:
+                            responseData.responseMessage = "Khong co cot username!";
+                            break;
+                        default:
+                            responseData.responseMessage = "Loi khong xac dinh!";
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                responseData.responseMessage = $"Lỗi khi xóa tài khoản: {ex.Message}";
+            }
+
+            return accounts;
+
         }
     }
 }
+

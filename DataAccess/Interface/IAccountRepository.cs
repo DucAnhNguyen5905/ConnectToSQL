@@ -14,13 +14,10 @@ namespace DataAccess.Interface
 
         int Account_Insert(AccountDTO accountDTO);
 
-        int AccountDelete(AccountDTO accountDTO);
-        int GetLoginHistory(AccountDTO accountDTO);
+        ResponseData AccountDelete(AccountDTO accountDTO);
 
-        int GetUserList(AccountDTO accountDTO);
+        ResponseData ImportAccountbyExcel(string filepath, out List<string> errorDetails);
 
-        int ImportAccountbyExcel(AccountDTO accountDTO);
-
-        List<AccountDTO> GetAccountList(Account_Request requestData);
+        List<AccountDTO> GetAccountList(AccountDTO accountDTO);
     }
 }

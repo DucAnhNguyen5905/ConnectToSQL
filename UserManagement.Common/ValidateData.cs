@@ -11,7 +11,7 @@ namespace UserManagement.Common
     {
         public static bool Check_String(string input)
         {
-            if (string.IsNullOrWhiteSpace(input) || input.Length > 50)
+            if (string.IsNullOrWhiteSpace(input) || input.Trim().Length > 50)
                 return false;
 
             // Biểu thức chính quy để kiểm tra ký tự đặc biệt
@@ -19,6 +19,13 @@ namespace UserManagement.Common
             return !Regex.IsMatch(input, pattern);
         }
 
+        public static bool Check_Password(string password)
+        {
+            if (string.IsNullOrWhiteSpace(password) || password.Length < 3 || password.Length > 19)
+                return false;
+
+            return true;
+        }
 
         // Kiểm tra chuỗi chỉ chứa số nguyên
         public static bool IsInteger(string input)

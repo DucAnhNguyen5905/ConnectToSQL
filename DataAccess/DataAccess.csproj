@@ -87,10 +87,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DBHelper\Connection.cs" />
+    <Compile Include="DBHelper\DatabaseHelper.cs" />
     <Compile Include="DBHelper\ExcelHelper.cs" />
     <Compile Include="DBHelper\SqlConnection.cs" />
     <Compile Include="DO\AccountDTO.cs" />
     <Compile Include="DO\Request_datalist\Account_Request.cs" />
+    <Compile Include="DO\ResponseData.cs" />
     <Compile Include="Interface\IAccountRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository\AccountRepository.cs" />

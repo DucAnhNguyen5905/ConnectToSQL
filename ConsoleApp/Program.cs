@@ -2,22 +2,26 @@
 using System.Collections.Generic;
 using System.Data;
 using DataAccess.DO;
+using DataAccess.DO.Request_data;
+using DataAccess.Interface;
 using DataAccess.Repository;
+using UserManagement.Common;
 
 class Program
 {
     static void Main()
     {
-        AccountRepository accountRepo = new AccountRepository();
+        IAccountRepository accountRepo = new AccountRepository();
 
         while (true)
         {
-            Console.WriteLine("\n--- Quan ly tai khoan ---");
+            Console.Clear();
+            Console.WriteLine("=== QUAN LY TAI KHOAN ===");
             Console.WriteLine("1. Dang nhap");
             Console.WriteLine("2. Them tai khoan");
             Console.WriteLine("3. Xoa tai khoan");
             Console.WriteLine("4. Hien thi danh sach tai khoan");
-            Console.WriteLine("5. Nhap du lieu tu Excel");
+            Console.WriteLine("5. Nhap du lieu tu file Excel");
             Console.WriteLine("6. Thoat");
             Console.Write("Chon chuc nang: ");
             string choice = Console.ReadLine();
@@ -32,100 +36,242 @@ class Program
                     break;
                 case "3":
                     XoaTaiKhoan(accountRepo);
-                    break;
+                    break; 
                 case "4":
-                    HienThiDanhSach(accountRepo);
+                    HienThiDanhSachTaiKhoan(accountRepo);
                     break;
                 case "5":
-                    NhapDuLieuExcel(accountRepo);
+                    NhapdulieutuExcel(accountRepo);
                     break;
-                case "6":
+                case "7":
                     return;
                 default:
-                    Console.WriteLine("Lua chon khong hop le, vui long thu lai.");
+                    Console.WriteLine("Lua chon khong hop le. Vui long thu lai.");
                     break;
+            }
+            Console.WriteLine("\nnhan phim bat ky de tiep tuc...");
+            Console.ReadKey();
+        }
+    }
+    static void HienThiDanhSachTaiKhoan(IAccountRepository accountRepo)
+    {
+        Console.Write("Nhap ten dang nhap can tim (bỏ trong neu lay tat ca): ");
+        string usernameInput = Console.ReadLine()?.Trim();
+
+        // Tạo request chứa thông tin tìm kiếm
+        AccountDTO accountDTO = new AccountDTO();
+        {
+            string UserName = usernameInput;
+        };
+
+        // Gọi phương thức lấy danh sách tài khoản
+        List<AccountDTO> accounts = accountRepo.GetAccountList(accountDTO);
+
+        // Kiểm tra danh sách tài khoản trả về
+        if (accounts == null || accounts.Count == 0)
+        {
+            Console.WriteLine("Khong tim thay tai khoan nao.");
+            return;
+        }
+
+        // Hiển thị danh sách tài khoản
+        Console.WriteLine("\n Danh sach tai khoan:");
+        Console.WriteLine("--------------------------------------------------------------------------");
+        Console.WriteLine("|   Username   |    Role    |        Email         |   RegisterDate     |");
+        Console.WriteLine("--------------------------------------------------------------------------");
+
+        foreach (AccountDTO account in accounts)
+        {
+            // Lấy vai trò dựa trên RoleID
+            string roleName;
+            switch (account.RoleID)
+            {
+                case 1:
+                    roleName = "Admin";
+                    break;
+                case 2:
+                    roleName = "Moderator";
+                    break;
+                default:
+                    roleName = "User";
+                    break;
+            }
+
+
+            // Lấy ngày đăng ký nếu có, nếu không hiển thị "N/A"
+            string formattedDate = account.RegisterDate?.ToString("dd/MM/yyyy") ?? "N/A";
+
+            // In thông tin tài khoản
+            Console.WriteLine($"| {account.UserName,-12} | {roleName,-9} | {account.Email,-20} | {formattedDate,-18} |");
+        }
+
+        Console.WriteLine("--------------------------------------------------------------------------");
+    }
+
+
+
+
+    static void NhapdulieutuExcel(IAccountRepository accountRepo)
+    {
+        Console.Write("Nhap duong dan file Excel: ");
+        string filePath = Console.ReadLine();
+
+        AccountRepository accoutRepo = new AccountRepository();
+        List<string> errorDetails;
+        ResponseData result = accountRepo.ImportAccountbyExcel(filePath, out errorDetails);
+
+        Console.WriteLine(result.responseMessage);
+
+        if (errorDetails.Count > 0)
+        {
+            Console.WriteLine("Chi tiet loi:");
+            foreach (var error in errorDetails)
+            {
+                Console.WriteLine(error);
             }
         }
     }
 
-    static void DangNhap(AccountRepository accountRepo)
+
+    static void DangNhap(IAccountRepository accountRepo)
     {
-        Console.Write("Nhap ten dang nhap: ");
+        Console.Write("nhap ten dang nhap: ");
         string username = Console.ReadLine();
         Console.Write("Nhap mat khau: ");
         string password = Console.ReadLine();
 
-        int result = accountRepo.Login(username, password);
-        Console.WriteLine(result == 1 ? "Dang nhap thanh cong!" : "Ten dang nhap hoac mat khau khong dung.");
+        // Kiểm tra dữ liệu đầu vào trước khi gọi Login
+        if (!ValidateData.Check_String(username))
+        {
+            Console.WriteLine("Ten dang nhap khong hop le.");
+            return;
+        }
+
+        if (!ValidateData.Check_Password(password))
+        {
+            Console.WriteLine("Mat khau khong hop le.");
+            return;
+        }
+
+        AccountDTO account = new AccountDTO
+        {
+            UserName = username,
+            PassWord = password
+        };
+
+        try
+        {
+            int result = accountRepo.Login(account);
+            if (result ==  1) {
+                Console.WriteLine("Ban da dang nhap thanh cong!");
+            }
+            else if (result == -2)
+            {
+                Console.WriteLine("Sai mat khau.");
+            }
+
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Loi he thong: {ex.Message}");
+        }
     }
 
-    static void ThemTaiKhoan(AccountRepository accountRepo)
+
+    static void ThemTaiKhoan(IAccountRepository accountRepo)
     {
         Console.Write("Nhap ten dang nhap: ");
         string username = Console.ReadLine();
-
         Console.Write("Nhap mat khau: ");
         string password = Console.ReadLine();
 
-        Console.Write("Nhap ID vai tro: ");
-        if (!int.TryParse(Console.ReadLine(), out int roleID))
+        if (!ValidateData.Check_Password(password))
         {
-            Console.WriteLine("ID vai tro phai la so.");
+            Console.WriteLine("Mat khau khong hop le.");
             return;
+        }
+        if(!ValidateData.Check_String(username))
+        {
+            Console.WriteLine("Ten dang nhap khong hop le.");
+            return;
+        }
+
+        int roleID;
+        while (true)
+        {
+            Console.Write("Nhap RoleID (1: Admin, 2: User): ");
+            if (int.TryParse(Console.ReadLine(), out roleID) && (roleID == 1 || roleID == 2))
+                break;
+            Console.WriteLine("Vui long chon 1 hoac 2.");
         }
 
         Console.Write("Nhap email: ");
         string email = Console.ReadLine();
+        if (!ValidateData.Check_Email(email))
+        {
+            Console.WriteLine("Email khong hop le.");
+            return;
+        }
 
-        
         AccountDTO account = new AccountDTO
         {
             UserName = username,
-            PassWord = password,  // Lưu ý: Thuộc tính là 'PassWord' chứ không phải 'Password'
+            PassWord = password,
             RoleID = roleID,
             Email = email
         };
 
-        
         int result = accountRepo.Account_Insert(account);
 
-        Console.WriteLine(result == 0 ? "Them tai khoan thanh cong." : $"Loi khi them tai khoan. Ma loi: {result}");
-    }
-    static void XoaTaiKhoan(AccountRepository accountRepo)
-    {
-        Console.Write("Nhap ID tai khoan can xoa: ");
-        int userId = int.Parse(Console.ReadLine());
-
-        int result = accountRepo.AccountDelete(userId);
-        Console.WriteLine(result > 0 ? "Xoa tai khoan thanh cong." : "Khong tim thay tai khoan hoac loi khi xoa.");
+        Console.WriteLine(result > 0 ? "Them tai khoan thanh cong!" : "Loi khi them tai khoan.");
     }
 
-    static void HienThiDanhSach(AccountRepository accountRepo)
+    static void XoaTaiKhoan(IAccountRepository accountRepo)
     {
-        DataTable dt = accountRepo.GetUserList();
-        if (dt.Rows.Count > 0)
+        Console.WriteLine("Nhap danh sach ten dang nhap can xoa (cach nhau boi dau phay): ");
+        string input = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(input))
         {
-            Console.WriteLine("\nDanh sach tai khoan:");
-            Console.WriteLine("ID | Ten dang nhap | Email | Ngay dang ky | Vai tro");
-            foreach (DataRow row in dt.Rows)
+            Console.WriteLine("Danh sach tai khoan khong hop le.");
+            return;
+        }
+
+        string[] usernames = input.Split(','); // Tách danh sách tài khoản
+        int soLuongThanhCong = 0;
+        int soLuongLoi = 0;
+
+        foreach (string username in usernames)
+        {
+            string trimmedUsername = username.Trim();
+            if (string.IsNullOrEmpty(trimmedUsername)) continue;
+
+            AccountDTO account = new AccountDTO { UserName = trimmedUsername };
+            ResponseData result = accountRepo.AccountDelete(account);
+
+            // Kiểm tra responseCode để cập nhật số lượng thành công / thất bại
+            if (result.responseCode == 1)
             {
-                Console.WriteLine($"{row["UserID"]} | {row["Username"]} | {row["Email"]} | {row["RegisterDate"]} | {row["RoleName"]}");
+                soLuongThanhCong++;
+                Console.WriteLine($"Xoa thanh cong tai khoan: {trimmedUsername}");
+            }
+            else
+            {
+                soLuongLoi++;
+                Console.WriteLine($"Xoa that bai tai khoan: {trimmedUsername} - Ly do: {result.responseMessage}");
             }
         }
-        else
-        {
-            Console.WriteLine("Khong co tai khoan nao.");
-        }
+
+        Console.WriteLine($"Tong ket: {soLuongThanhCong} tai khoan da xoa, {soLuongLoi} tai khoan xoa that bai.");
     }
 
-    static void NhapDuLieuExcel(AccountRepository accountRepo)
-    {
-        DataTable dataTable = ExcelHelper.ReadExcelToDataTable("du_lieu.xlsx");
-        accountRepo.ImportAccountbyExcel(dataTable); // Đảm bảo phương thức này nhận DataTable
-        List<string> result = accountRepo.ImportAccountbyExcel(dataTable);
-        bool isSuccess = result.Count > 0; // Kiểm tra nếu danh sách có phần tử nào
 
-        Console.WriteLine(isSuccess ? "Nhap du lieu thanh cong" : "Loi khi nhap du lieu");
 
-    }
+
+
+
+
+
+
 }
