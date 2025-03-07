@@ -18,6 +18,6 @@ namespace DataAccess.Interface
 
         ResponseData ImportAccountbyExcel(string filepath, out List<string> errorDetails);
 
-        List<AccountDTO> GetAccountList(AccountDTO accountDTO);
+        List<AccountDTO> GetAccountList(AccountGetListInputData accountinput);
     }
 }

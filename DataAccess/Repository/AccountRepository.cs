@@ -13,9 +13,10 @@ namespace DataAccess.Repository
 {
     public class AccountRepository : IAccountRepository
     {
-        public int Login(AccountDTO accountDTO)
+        public int Login(AccountDTO account)
         {
             int responseCode = -1; // Mặc định là lỗi
+            int roleID = -1;
 
             try
             {
@@ -25,36 +26,50 @@ namespace DataAccess.Repository
                     command.CommandType = CommandType.StoredProcedure;
 
                     // Thêm tham số đầu vào
-                    command.Parameters.AddWithValue("@Username", accountDTO.UserName);
-                    command.Parameters.AddWithValue("@Password", accountDTO.PassWord);
+                    command.Parameters.AddWithValue("@Username", account.UserName);
+                    command.Parameters.Add(new SqlParameter("@Password", SqlDbType.VarChar) { Value = account.PassWord ?? (object)DBNull.Value });
 
-                    // Thêm tham số đầu ra để nhận mã phản hồi từ Stored Procedure
-                    SqlParameter outputParam = new SqlParameter("@ResponseCode", SqlDbType.Int)
+                    // Tham số OUTPUT cho mã phản hồi
+                    SqlParameter outputResponseCode = new SqlParameter("@ResponseCode", SqlDbType.Int)
                     {
                         Direction = ParameterDirection.Output
                     };
-                    command.Parameters.Add(outputParam);
+                    command.Parameters.Add(outputResponseCode);
 
-                    // Thực thi Stored Procedure
-                    command.ExecuteNonQuery();
+                    // Tham số OUTPUT cho RoleID
+                    SqlParameter outputRoleID = new SqlParameter("@RoleID", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    command.Parameters.Add(outputRoleID);
 
-                    // Lấy giá trị từ tham số đầu ra
-                    responseCode = (int)outputParam.Value;
+                    command.ExecuteReader();
 
-                    // Nếu đăng nhập thành công (responseCode == 1), lưu lịch sử đăng nhập
+                    responseCode = Convert.ToInt32(outputResponseCode.Value);
+                    roleID = outputRoleID.Value != DBNull.Value ? Convert.ToInt32(outputRoleID.Value) : -1;
+
                     if (responseCode == 1)
                     {
-                        Console.WriteLine("Chuc mung!!!");
+                        // Lưu vào session
+                        SessionManager.Instance.SetUserSession(account.UserName, roleID);
+
+                        Console.WriteLine($"Chúc mừng {account.UserName}, bạn đã đăng nhập thành công với RoleID: {roleID}");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Đăng nhập thất bại! Vui lòng kiểm tra lại tài khoản và mật khẩu.");
                     }
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception($"Loi he thong: {ex.Message}");
+                throw new Exception($"Lỗi hệ thống: {ex.Message}");
             }
 
             return responseCode;
         }
+
+
 
         public int Account_Insert(AccountDTO accountDTO)
         {
@@ -273,63 +288,60 @@ namespace DataAccess.Repository
             };
         }
 
-        public List<AccountDTO> GetAccountList(AccountDTO accountDTO)
+        public List<AccountDTO> GetAccountList(AccountGetListInputData accountinput)
         {
-            List<AccountDTO> accounts = new List<AccountDTO>();
+            List<AccountDTO> accountDTOs = new List<AccountDTO>();
 
-            ResponseData responseData = new ResponseData { responseCode = -1, responseMessage = "Lỗi không xác định" };
+            // Kiểm tra người dùng đã đăng nhập hay chưa
+            if (string.IsNullOrEmpty(SessionManager.Instance.Username))
+            {
+                Console.WriteLine("Bạn chưa đăng nhập.");
+                return accountDTOs ;
+            }
 
             try
             {
                 using (var connection = DatabaseHelper.GetOpenConnection())
-                using (var command = new SqlCommand("SP_Account_List", connection))
                 {
-                    command.CommandType = CommandType.StoredProcedure;
-
-                    // Thêm tham số đầu vào (Username)
-                    command.Parameters.Add(new SqlParameter("@UserName", SqlDbType.NVarChar, 50)
+                    if (connection.State != ConnectionState.Open)
                     {
-                        Value = string.IsNullOrEmpty(accountDTO.UserName) ? (object)DBNull.Value : accountDTO.UserName
-                    });
+                        Console.WriteLine("Không thể kết nối đến CSDL.");
+                        return accountDTOs;
+                    }
 
-                    // Thêm tham số đầu ra (ResponseCode)
-                    SqlParameter outputParam = new SqlParameter("@ResponseCode", SqlDbType.Int)
+                    using (var command = new SqlCommand("SP_Account_List", connection))
                     {
-                        Direction = ParameterDirection.Output
-                    };
-                    command.Parameters.Add(outputParam);
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("@CreatedBy", accountinput.CreatedBy);
+                        command.Parameters.AddWithValue("@RoleID", accountinput.RoleIdInput);
+                        command.Parameters.AddWithValue("@Username", accountinput.UsernameInput);
 
-                    // Thực thi Stored Procedure
-                    command.ExecuteNonQuery();
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                AccountDTO account = new AccountDTO
+                                {
+                                    UserName = reader["Username"].ToString(),
+                                    PassWord = reader["Password"] != DBNull.Value ? reader["Password"].ToString() : "",
+                                    RoleID = reader["RoleID"] != DBNull.Value ? Convert.ToInt32(reader["RoleID"]) : 0,
+                                    Email = reader["Email"] != DBNull.Value ? reader["Email"].ToString() : "",
+                                    RegisterDate = reader["RegisterDate"] != DBNull.Value ? Convert.ToDateTime(reader["RegisterDate"]) : DateTime.MinValue
+                                    
+                                };
 
-                    // Lấy giá trị từ tham số đầu ra
-                    responseData.responseCode = (int)command.Parameters["@ResponseCode"].Value;
-
-                    // Xử lý thông báo dựa trên mã phản hồi
-                    switch (responseData.responseCode)
-                    {
-                        case 1:
-                            responseData.responseMessage = "Hien thi thanh cong!";
-                            break;
-                        case -2:
-                            responseData.responseMessage = "Không tìm thấy tài khoản !";
-                            break;
-                        case -3:
-                            responseData.responseMessage = "Khong co cot username!";
-                            break;
-                        default:
-                            responseData.responseMessage = "Loi khong xac dinh!";
-                            break;
+                                accountDTOs.Add(account);
+                            }
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
-                responseData.responseMessage = $"Lỗi khi xóa tài khoản: {ex.Message}";
+                Console.WriteLine($"Lỗi hệ thống: {ex.Message}");
             }
 
-            return accounts;
-
+            return accountDTOs;
         }
     }
 }
