@@ -34,7 +34,7 @@ class Program
                     Console.Write("Nhap ten dang nhap: ");
                     string username_login_input = Console.ReadLine().Trim();
 
-                    Console.Write("Nhập mật khẩu: ");
+                    Console.Write("Nhap mat khau: ");
                     string password_login_input = Console.ReadLine().Trim();
 
                     // Kiểm tra dữ liệu đầu vào
@@ -57,18 +57,31 @@ class Program
                         PassWord = password_login_input
                     };
 
-                    // Gọi phương thức đăng nhập
-                    if (DangNhap(accountRepo, account))
+
+                    // Gọi phương thức đăng nhập và lấy mã phản hồi
+                    int loginResult = DangNhap(accountRepo, account);
+
+                    // Kiểm tra kết quả đăng nhập
+                    if (loginResult == -3)
                     {
+                        Console.WriteLine("Ten dang nhap khong ton tai.");
+                    }
+                    else if (loginResult == -2)
+                    {
+                        Console.WriteLine("Mat khau sai.");
+                    }
+                    else if (loginResult == 1)
+                    {
+                        Console.WriteLine("Dang nhap thanh cong!");
                         string userChoice;
                         do
                         {
                             Console.Write("Ban co muon hien thi danh sach tai khoan? (y/n): ");
                             userChoice = Console.ReadLine().Trim().ToLower();
- 
+
                             if (userChoice == "y")
                             {
-                                Console.WriteLine("Nhap ten dang nhap can tim kiem ( bo trong neu muon lay tat ca): ");
+                                Console.WriteLine("Nhap ten dang nhap can tim kiem (bo trong neu muon lay tat ca): ");
                                 var UserNameInputFromKeyboard = Console.ReadLine().Trim();
                                 HienThiDanhSachTaiKhoan(accountRepo, account, UserNameInputFromKeyboard);
                             }
@@ -79,14 +92,18 @@ class Program
 
                         } while (userChoice != "y" && userChoice != "n");
                     }
-                    DangNhap(accountRepo, account);
+                    else
+                    {
+                        Console.WriteLine("Loi khong xac dinh.");
+                    }
+
                     break;
                 case "2":
                     ThemTaiKhoan(accountRepo);
                     break;
                 case "3":
                     XoaTaiKhoan(accountRepo);
-                    break; 
+                    break;
                 case "4":
                     Console.Write("Nhap ten dang nhap can tim (bo trong neu lay tat ca): ");
                     string usernameInput = Console.ReadLine()?.Trim();
@@ -97,7 +114,7 @@ class Program
                         UserName = usernameInput
                     };
 
-                    HienThiDanhSachTaiKhoan(accountRepo, accountDTO, usernameInput );
+                    HienThiDanhSachTaiKhoan(accountRepo, accountDTO, usernameInput);
                     break;
                 case "5":
                     NhapdulieutuExcel(accountRepo);
@@ -126,31 +143,14 @@ class Program
         }
     }
 
-    static bool DangNhap(IAccountRepository accountRepo, AccountDTO account)
+    static int DangNhap(IAccountRepository accountRepo, AccountDTO account)
     {
+
         // Gọi phương thức đăng nhập
         int responseCode = accountRepo.Login(account);
+        return responseCode;
 
-        // Kiểm tra kết quả đăng nhập
-        switch (responseCode)
-        {
-            case 1:
-                Console.WriteLine("Dang nhap thanh cong!");
-                return true;
-            case -1:
-                Console.WriteLine("Tai khoan khong ton tai.");
-                break;
-            case -2:
-                Console.WriteLine("Sai mat khau, vui long thu lai.");
-                break;
-            case -3:
-                Console.WriteLine("Loi he thong.");
-                break;
-            default:
-                Console.WriteLine("Lỗi không xác định.");
-                break;
-        }
-        return false;
+
     }
 
 
@@ -232,7 +232,7 @@ class Program
     }
 
 
-   
+
 
     static void ThemTaiKhoan(IAccountRepository accountRepo)
     {
@@ -246,7 +246,7 @@ class Program
             Console.WriteLine("Mat khau khong hop le.");
             return;
         }
-        if(!ValidateData.Check_String(username))
+        if (!ValidateData.Check_String(username))
         {
             Console.WriteLine("Ten dang nhap khong hop le.");
             return;

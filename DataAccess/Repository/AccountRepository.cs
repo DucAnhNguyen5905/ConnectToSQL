@@ -53,12 +53,9 @@ namespace DataAccess.Repository
                         // Lưu vào session
                         SessionManager.Instance.SetUserSession(account.UserName, roleID);
 
-                        Console.WriteLine($"Chúc mừng {account.UserName}, bạn đã đăng nhập thành công với RoleID: {roleID}");
+                        Console.WriteLine($"Chuc mung {account.UserName}, ban da dang nhap thanh cong voi RoleID: {roleID}");
                     }
-                    else
-                    {
-                        Console.WriteLine("Đăng nhập thất bại! Vui lòng kiểm tra lại tài khoản và mật khẩu.");
-                    }
+   
                 }
             }
             catch (Exception ex)
@@ -296,7 +293,7 @@ namespace DataAccess.Repository
             if (string.IsNullOrEmpty(SessionManager.Instance.Username))
             {
                 Console.WriteLine("Bạn chưa đăng nhập.");
-                return accountDTOs ;
+                return accountDTOs;
             }
 
             try
@@ -327,7 +324,7 @@ namespace DataAccess.Repository
                                     RoleID = reader["RoleID"] != DBNull.Value ? Convert.ToInt32(reader["RoleID"]) : 0,
                                     Email = reader["Email"] != DBNull.Value ? reader["Email"].ToString() : "",
                                     RegisterDate = reader["RegisterDate"] != DBNull.Value ? Convert.ToDateTime(reader["RegisterDate"]) : DateTime.MinValue
-                                    
+
                                 };
 
                                 accountDTOs.Add(account);
