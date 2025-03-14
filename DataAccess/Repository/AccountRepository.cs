@@ -8,6 +8,9 @@ using UserManagement.Common;
 using DataAccess.Interface;
 using DataAccess.DBHelper;
 using System.Linq;
+using System.Security.Principal;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace DataAccess.Repository
 {
@@ -79,11 +82,19 @@ namespace DataAccess.Repository
                 {
                     command.CommandType = CommandType.StoredProcedure;
 
+                    // Mã hóa password trước khi gửi vào SQL
+                    string hashedPassword = ComputeSha256Hash(accountDTO.PassWord);
+
                     // Thêm tham số đầu vào
                     command.Parameters.AddWithValue("@Username", accountDTO.UserName);
-                    command.Parameters.AddWithValue("@Password", accountDTO.PassWord);
+                    command.Parameters.AddWithValue("@Password", hashedPassword);
                     command.Parameters.AddWithValue("@RoleID", accountDTO.RoleID);
                     command.Parameters.AddWithValue("@Email", accountDTO.Email);
+
+                    // Kiểm tra CreatedBy hợp lệ
+                    string createdBy = string.IsNullOrEmpty(SessionManager.Instance.Username)
+                                       ? "System" : SessionManager.Instance.Username;
+                    command.Parameters.AddWithValue("@CreatedBy", createdBy);
 
                     // Thêm tham số đầu ra để nhận mã phản hồi từ Stored Procedure
                     SqlParameter outputParam = new SqlParameter("@ResponseCode", SqlDbType.Int)
@@ -100,16 +111,41 @@ namespace DataAccess.Repository
 
                     if (responseCode == 1)
                     {
-                        Console.WriteLine("Chuc mung!!!");
+                        Console.WriteLine("Chúc mừng!!! Tạo tài khoản thành công.");
+                    }
+                    else if (responseCode == -2)
+                    {
+                        Console.WriteLine("Lỗi: Username đã tồn tại.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Lỗi: Không thể tạo tài khoản.");
                     }
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception($"Loi he thong: {ex.Message}");
+                throw new Exception($"Lỗi hệ thống: {ex.Message}");
             }
             return responseCode;
         }
+
+        // Hàm mã hóa mật khẩu SHA-256
+        private static string ComputeSha256Hash(string rawData)
+        {
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
+
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                return builder.ToString();
+            }
+        }
+
 
         public ResponseData AccountDelete(AccountDTO accountDTO)
         {
@@ -117,6 +153,14 @@ namespace DataAccess.Repository
 
             try
             {
+                // Kiểm tra quyền trước khi xóa
+                if (SessionManager.Instance.RoleID != 1 && SessionManager.Instance.Username != accountDTO.UserName)
+                {
+                    responseData.responseMessage = "Ban khong co quyen xoa tai khoan nay!";
+                    Console.WriteLine(responseData.responseMessage);
+                    return responseData; // Không thực thi lệnh xóa nếu không có quyền
+                }
+
                 using (var connection = DatabaseHelper.GetOpenConnection())
                 using (var command = new SqlCommand("SP_Account_Delete", connection))
                 {
@@ -135,7 +179,7 @@ namespace DataAccess.Repository
                     };
                     command.Parameters.Add(outputParam);
 
-                    // Thực thi Stored Procedure
+                    // Thực thi Stored Procedure (chỉ khi đã kiểm tra quyền)
                     command.ExecuteNonQuery();
 
                     // Lấy giá trị từ tham số đầu ra
@@ -157,6 +201,17 @@ namespace DataAccess.Repository
                             responseData.responseMessage = "Loi khong xac dinh!";
                             break;
                     }
+
+                    // Nếu xóa chính tài khoản đang đăng nhập thì đăng xuất
+                    if (SessionManager.Instance.Username == accountDTO.UserName)
+                    {
+                        Console.WriteLine($"Ban dang xoa tai khoan: {accountDTO.UserName}");
+                        SessionManager.Instance.Logout();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Admin dang xoa tai khoan {accountDTO.UserName}");
+                    }
                 }
             }
             catch (Exception ex)
@@ -166,6 +221,8 @@ namespace DataAccess.Repository
 
             return responseData;
         }
+
+
 
 
         public ResponseData ImportAccountbyExcel(string filePath, out List<string> danhSachLoi)

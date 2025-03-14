@@ -231,9 +231,6 @@ class Program
         }
     }
 
-
-
-
     static void ThemTaiKhoan(IAccountRepository accountRepo)
     {
         Console.Write("Nhap ten dang nhap: ");
@@ -320,13 +317,6 @@ class Program
 
         Console.WriteLine($"Tong ket: {soLuongThanhCong} tai khoan da xoa, {soLuongLoi} tai khoan xoa that bai.");
     }
-
-
-
-
-
-
-
 
 
 }
