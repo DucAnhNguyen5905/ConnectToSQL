@@ -24,7 +24,7 @@ class Program
             Console.WriteLine("4. Hien thi danh sach tai khoan");
             Console.WriteLine("5. Nhap du lieu tu file Excel");
             Console.WriteLine("6. Thoat");
-            Console.WriteLine("7. Test");
+            Console.WriteLine("7. Kiem tra tai khoan login");
             Console.Write("Chon chuc nang: ");
             string choice = Console.ReadLine();
 
@@ -122,13 +122,16 @@ class Program
                 case "6":
                     break;
                 case "7":
-                    Console.WriteLine($"Người dùng hiện tại: {SessionManager.Instance.Username}");
-                    Console.WriteLine($"Vai trò (RoleID): {SessionManager.Instance.RoleID}");
+                    Console.WriteLine($"Tai khoan hien tai: {SessionManager.Instance.Username}");
+                    Console.WriteLine($"Vai tro (RoleID): {SessionManager.Instance.RoleID}");
                     if (SessionManager.Instance.RoleID == 1)
                     {
                         Console.WriteLine("Ban la quan tri vien!");
                     }
-                    else
+                    else if (SessionManager.Instance.RoleID == -1)
+                    {
+                        Console.WriteLine("Ban chua dang nhap!");
+                    }else
                     {
                         Console.WriteLine("Ban la user thong thuong.");
                     }
@@ -206,8 +209,6 @@ class Program
 
         Console.WriteLine("--------------------------------------------------------------------------");
     }
-
-
 
 
     static void NhapdulieutuExcel(IAccountRepository accountRepo)

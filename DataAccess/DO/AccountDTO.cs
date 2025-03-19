@@ -12,8 +12,8 @@ namespace DataAccess.DO
         public string UserName { get; set; }
         public string PassWord { get; set; }
         public string Email { get; set; }
-        public int? RoleID { get; set; }
-        
+        public int? RoleID { get; set; }      
+        public string CreatedBy { get; set; }
         public DateTime? RegisterDate { get; set; }
     }
 }

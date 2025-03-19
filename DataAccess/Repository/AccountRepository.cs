@@ -58,12 +58,11 @@ namespace DataAccess.Repository
 
                         Console.WriteLine($"Chuc mung {account.UserName}, ban da dang nhap thanh cong voi RoleID: {roleID}");
                     }
-   
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception($"Lỗi hệ thống: {ex.Message}");
+                throw new Exception($"Loi he thong: {ex.Message}");
             }
 
             return responseCode;
@@ -111,21 +110,21 @@ namespace DataAccess.Repository
 
                     if (responseCode == 1)
                     {
-                        Console.WriteLine("Chúc mừng!!! Tạo tài khoản thành công.");
+                        Console.WriteLine("Tao tai khoan thanh cong !!!.");
                     }
                     else if (responseCode == -2)
                     {
-                        Console.WriteLine("Lỗi: Username đã tồn tại.");
+                        Console.WriteLine("Loi: Username da ton tai.");
                     }
                     else
                     {
-                        Console.WriteLine("Lỗi: Không thể tạo tài khoản.");
+                        Console.WriteLine("Loi: khong the tao tai khoan.");
                     }
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception($"Lỗi hệ thống: {ex.Message}");
+                throw new Exception($"Loi he thong: {ex.Message}");
             }
             return responseCode;
         }
@@ -149,27 +148,31 @@ namespace DataAccess.Repository
 
         public ResponseData AccountDelete(AccountDTO accountDTO)
         {
-            ResponseData responseData = new ResponseData { responseCode = -1, responseMessage = "Loi khong xac dinh" };
+            ResponseData responseData = new ResponseData { responseCode = -1, responseMessage = "Lỗi không xác định" };
 
             try
             {
-                // Kiểm tra quyền trước khi xóa
-                if (SessionManager.Instance.RoleID != 1 && SessionManager.Instance.Username != accountDTO.UserName)
-                {
-                    responseData.responseMessage = "Ban khong co quyen xoa tai khoan nay!";
-                    Console.WriteLine(responseData.responseMessage);
-                    return responseData; // Không thực thi lệnh xóa nếu không có quyền
-                }
-
                 using (var connection = DatabaseHelper.GetOpenConnection())
                 using (var command = new SqlCommand("SP_Account_Delete", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
 
-                    // Thêm tham số đầu vào (Username)
+                    // Thêm tham số tài khoản cần xóa
                     command.Parameters.Add(new SqlParameter("@UserName", SqlDbType.NVarChar, 50)
                     {
                         Value = string.IsNullOrEmpty(accountDTO.UserName) ? (object)DBNull.Value : accountDTO.UserName
+                    });
+
+                    // Thêm tham số tài khoản đang đăng nhập (người thực hiện xóa)
+                    command.Parameters.Add(new SqlParameter("@CurrentUser", SqlDbType.NVarChar, 50)
+                    {
+                        Value = SessionManager.Instance.Username
+                    });
+
+                    // Thêm tham số RoleID để xác định quyền admin
+                    command.Parameters.Add(new SqlParameter("@RoleID", SqlDbType.Int)
+                    {
+                        Value = SessionManager.Instance.RoleID
                     });
 
                     // Thêm tham số đầu ra (ResponseCode)
@@ -179,7 +182,7 @@ namespace DataAccess.Repository
                     };
                     command.Parameters.Add(outputParam);
 
-                    // Thực thi Stored Procedure (chỉ khi đã kiểm tra quyền)
+                    // Thực thi Stored Procedure 
                     command.ExecuteNonQuery();
 
                     // Lấy giá trị từ tham số đầu ra
@@ -192,10 +195,13 @@ namespace DataAccess.Repository
                             responseData.responseMessage = "Xoa tai khoan thanh cong!";
                             break;
                         case -2:
-                            responseData.responseMessage = "Khong tim thay tai khoan de xoa!";
+                            responseData.responseMessage = "Khong tim thay tai khoan!";
                             break;
                         case -3:
-                            responseData.responseMessage = "Khong co ban ghi nao bi xoa!";
+                            responseData.responseMessage = "Tai khoan khong co du lieu!";
+                            break;
+                        case -4:
+                            responseData.responseMessage = "Ban khong co quyen xoa tai khoan nay!";
                             break;
                         default:
                             responseData.responseMessage = "Loi khong xac dinh!";
@@ -205,23 +211,22 @@ namespace DataAccess.Repository
                     // Nếu xóa chính tài khoản đang đăng nhập thì đăng xuất
                     if (SessionManager.Instance.Username == accountDTO.UserName)
                     {
-                        Console.WriteLine($"Ban dang xoa tai khoan: {accountDTO.UserName}");
+                        Console.WriteLine($"Ban dang xoa tai khoan cua chinh minh: {accountDTO.UserName}");
                         SessionManager.Instance.Logout();
                     }
                     else
                     {
-                        Console.WriteLine($"Admin dang xoa tai khoan {accountDTO.UserName}");
+                        Console.WriteLine($"Chu tai khoan dang xoa tai khoan {accountDTO.UserName}");
                     }
                 }
             }
             catch (Exception ex)
             {
-                responseData.responseMessage = $"Loi khi xoa tai khoan: {ex.Message}";
+                responseData.responseMessage = $"Lỗi khi xóa tài khoản: {ex.Message}";
             }
 
             return responseData;
         }
-
 
 
 
