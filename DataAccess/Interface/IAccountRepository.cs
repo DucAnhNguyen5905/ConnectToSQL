@@ -16,8 +16,11 @@ namespace DataAccess.Interface
 
         ResponseData AccountDelete(AccountDTO accountDTO);
 
+        ResponseData AccountUpdate(AccountDTO accountDTO);
+
         ResponseData ImportAccountbyExcel(string filepath, out List<string> errorDetails);
 
+        ResponseData ResetPassword(AccountDTO accountDTO);
         List<AccountDTO> GetAccountList(AccountGetListInputData accountinput);
     }
 }

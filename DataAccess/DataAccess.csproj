@@ -97,6 +97,7 @@
     <Compile Include="Interface\IAccountRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository\AccountRepository.cs" />
+    <Compile Include="Repository\EmailService.cs" />
     <Compile Include="Repository\SessionManager.cs" />
   </ItemGroup>
   <ItemGroup>

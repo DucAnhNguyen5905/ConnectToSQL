@@ -13,7 +13,7 @@ class Program
     static void Main()
     {
         IAccountRepository accountRepo = new AccountRepository();
-
+        EmailSender emailSender = new EmailSender();
         while (true)
         {
             Console.Clear();
@@ -25,6 +25,10 @@ class Program
             Console.WriteLine("5. Nhap du lieu tu file Excel");
             Console.WriteLine("6. Thoat");
             Console.WriteLine("7. Kiem tra tai khoan login");
+            Console.WriteLine("8. Dang xuat");
+            Console.WriteLine("9. Cap nhat thong tin tai khoan");
+            Console.WriteLine("10. Quen mat khau");
+            Console.WriteLine("11. Reset mat khau");
             Console.Write("Chon chuc nang: ");
             string choice = Console.ReadLine();
 
@@ -131,12 +135,25 @@ class Program
                     else if (SessionManager.Instance.RoleID == -1)
                     {
                         Console.WriteLine("Ban chua dang nhap!");
-                    }else
+                    }
+                    else
                     {
                         Console.WriteLine("Ban la user thong thuong.");
                     }
                     break;
-
+                case "8":
+                    SessionManager.Instance.Logout();
+                    Console.WriteLine("Ban da dang xuat thanh cong !");
+                    break;
+                case "9":
+                    CapNhatTaiKhoan(accountRepo);
+                    break;
+                case "10":
+                    QuenMatKhau(emailSender);
+                    break;
+                case "11":
+                    ResetMatkhau(accountRepo);
+                    break;
                 default:
                     Console.WriteLine("Lua chon khong hop le. Vui long thu lai.");
                     break;
@@ -146,6 +163,51 @@ class Program
         }
     }
 
+
+    static void QuenMatKhau(EmailSender emailSender)
+    {
+        string adminEmail = "ducanhnguyen5905@gmail.com";   // Email admin
+        string adminPassword = "zmor riri qpfb cjdo"; // Mật khẩu ứng dụng 
+        string otpCode = emailSender.GenerateOTP(); // Tạo mã OTP
+
+        // Gửi mã OTP đến email
+        emailSender.SendEmail(adminEmail, adminPassword, adminEmail, otpCode);
+
+        // Nhập mã OTP
+        Console.Write("Nhap ma OTP: ");
+        string userInput = Console.ReadLine();
+
+        // Kiểm tra OTP
+        if (userInput == otpCode)
+        {
+            Console.WriteLine(" Xac thuc thanh cong. Hay nhap mat khau moi:");
+
+            // Nhập và xác nhận mật khẩu mới
+            string newPassword;
+            while (true)
+            {
+                Console.Write("Nhap mat khau moi: ");
+                newPassword = Console.ReadLine();
+
+                Console.Write("Xac nhan mat khau moi: ");
+                string confirmPassword = Console.ReadLine();
+
+                if (newPassword == confirmPassword)
+                {
+                    Console.WriteLine(" Mat khau duoc dat lai thanh cong!");
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Mat khau khong khop, vui long thu lai.");
+                }
+            }
+        }
+        else
+        {
+            Console.WriteLine("Ma OTP khong hop le.");
+        }
+    }
     static int DangNhap(IAccountRepository accountRepo, AccountDTO account)
     {
 
@@ -231,6 +293,8 @@ class Program
             }
         }
     }
+
+
 
     static void ThemTaiKhoan(IAccountRepository accountRepo)
     {
@@ -318,6 +382,148 @@ class Program
 
         Console.WriteLine($"Tong ket: {soLuongThanhCong} tai khoan da xoa, {soLuongLoi} tai khoan xoa that bai.");
     }
+
+    static void CapNhatTaiKhoan(IAccountRepository accountRepo)
+    {
+        Console.Write("Nhap Username can cap nhat: ");
+        string usernameToUpdate = Console.ReadLine()?.Trim();
+
+        if (!ValidateData.Check_String(usernameToUpdate))
+        {
+            Console.WriteLine("Username khong hop le!");
+            return;
+        }
+
+        // Lấy thông tin người dùng hiện tại
+        int currentRoleID = SessionManager.Instance.RoleID;
+        string currentUsername = SessionManager.Instance.Username;
+
+        Console.WriteLine($"Ban dang cap nhat tai khoan: {usernameToUpdate}");
+
+        // Kiểm tra quyền cập nhật
+        bool isAdmin = (currentRoleID == 1);
+        bool canUpdateAll = isAdmin; // Admin được phép cập nhật tất cả
+
+        // Menu cập nhật
+        int choice = 0;
+
+        if (canUpdateAll) // Admin
+        {
+            Console.WriteLine("Chon muc can cap nhat:");
+            Console.WriteLine("1. Cap nhat Fullname");
+            Console.WriteLine("2. Cap nhat Username");
+            Console.WriteLine("3. Cap nhat RoleID");
+            Console.WriteLine("4. Cap nhat tat ca thong tin");
+
+            Console.Write("Nhap lua chon: ");
+            if (!int.TryParse(Console.ReadLine(), out choice) || choice < 1 || choice > 4)
+            {
+                Console.WriteLine("Lua chon khong hop le!");
+                return;
+            }
+        }
+        else // User thường
+        {
+            Console.WriteLine("Ban chi co quyen cap nhat Fullname.");
+            choice = 1;
+        }
+
+        // Biến lưu thông tin cập nhật
+        string newFullname = null;
+        string newUsername = null;
+        int? newRoleID = null;
+
+        switch (choice)
+        {
+            case 1:
+                Console.Write("Nhap Fullname moi: ");
+                newFullname = Console.ReadLine()?.Trim();
+                break;
+            case 2:
+                Console.Write("Nhap Username moi: ");
+                newUsername = Console.ReadLine()?.Trim();
+                break;
+            case 3:
+                Console.Write("Nhap RoleID moi: ");
+                if (int.TryParse(Console.ReadLine()?.Trim(), out int parsedRoleID))
+                    newRoleID = parsedRoleID;
+                break;
+            case 4:
+                Console.Write("Nhap Fullname moi: ");
+                newFullname = Console.ReadLine()?.Trim();
+
+                Console.Write("Nhap Username moi: ");
+                newUsername = Console.ReadLine()?.Trim();
+
+                Console.Write("Nhap RoleID moi: ");
+                if (int.TryParse(Console.ReadLine()?.Trim(), out int role))
+                    newRoleID = role;
+                break;
+        }
+
+        // Tạo DTO để cập nhật
+        AccountDTO updatedAccount = new AccountDTO
+        {
+            UserName = usernameToUpdate, // Username hiện tại (không phải username mới)
+            NewUsername = newUsername,   // Chỉnh sửa để đúng với AccountDTO
+            FullName = null,             // Để null vì FullName cũ không cần truyền vào
+            NewFullname = newFullname,   // Chỉnh sửa để đúng với AccountDTO
+            RoleID = newRoleID,
+        };
+
+        // Gọi repository
+        ResponseData result = accountRepo.AccountUpdate(updatedAccount);
+
+        // Xử lý kết quả
+        Console.WriteLine(result.responseCode == 1 ? "Cap nhat thanh cong!" : $"Loi: {result.responseMessage}");
+    }
+
+    static void ResetMatkhau(IAccountRepository accountRepo)
+    {
+        Console.WriteLine("Nhap ID can reset mat khau: ");
+        string input = Console.ReadLine()?.Trim();
+
+        // Kiểm tra ID có hợp lệ không
+        if (!int.TryParse(input, out int idinput))
+        {
+            Console.WriteLine("ID khong hop le!");
+            return;
+        }
+
+        // Lấy thông tin người dùng hiện tại
+        int currentRoleID = SessionManager.Instance.RoleID;
+
+        Console.WriteLine($"Ban dang cap nhat tai khoan co ID la: {idinput}");
+
+        if (currentRoleID != 1) // Nếu không phải admin
+        {
+            Console.WriteLine("Ban khong co quyen cap nhat");
+            return;
+        }
+
+        Console.WriteLine("Nhap mat khau moi: ");
+        string newPassword = Console.ReadLine()?.Trim();
+
+        if (!ValidateData.Check_Password(newPassword)) // Kiểm tra mật khẩu hợp lệ
+        {
+            Console.WriteLine("Mat khau khong hop le!");
+            return;
+        }
+
+        // Tạo đối tượng DTO để cập nhật mật khẩu
+        AccountDTO resetPass = new AccountDTO
+        {
+            UserID = idinput, // Truyền ID vào DTO
+            PassWord = newPassword
+        };
+
+        // Gọi repository để reset mật khẩu
+        ResponseData result = accountRepo.ResetPassword(resetPass);
+
+        // Xử lý kết quả
+        Console.WriteLine(result.responseCode == 1 ? "Cap nhat thanh cong!" : $"Loi: {result.responseMessage}");
+    }
+
 
 
 }
