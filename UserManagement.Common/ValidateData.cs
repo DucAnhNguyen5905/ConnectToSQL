@@ -36,6 +36,7 @@ namespace UserManagement.Common
             return int.TryParse(input, out _);
         }
 
+
         public static bool Check_Email(string email)
         {
             if (string.IsNullOrWhiteSpace(email))
@@ -45,6 +46,7 @@ namespace UserManagement.Common
             string pattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
             return Regex.IsMatch(email, pattern);
         }
+
 
         // Phương thức tổng hợp kiểm tra dữ liệu đầu vào
         public static bool Validate(string input)

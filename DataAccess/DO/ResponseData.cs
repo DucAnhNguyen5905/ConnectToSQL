@@ -10,6 +10,7 @@ namespace DataAccess.DO
     {
         public int responseCode { get; set; }
 
+        public string Data { get; set; }  // Hoặc kiểu dữ liệu khác bạn cần
         public string responseMessage { get; set; }
     }
 }

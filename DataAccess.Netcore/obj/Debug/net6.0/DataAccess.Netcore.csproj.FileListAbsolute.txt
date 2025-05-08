@@ -1,0 +1,15 @@
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess.Netcore\bin\Debug\net6.0\DataAccess.Netcore.deps.json
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess.Netcore\bin\Debug\net6.0\DataAccess.Netcore.runtimeconfig.json
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess.Netcore\bin\Debug\net6.0\DataAccess.Netcore.dll
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess.Netcore\bin\Debug\net6.0\DataAccess.Netcore.pdb
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess.Netcore\obj\Debug\net6.0\DataAccess.Netcore.csproj.AssemblyReference.cache
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess.Netcore\obj\Debug\net6.0\DataAccess.Netcore.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess.Netcore\obj\Debug\net6.0\DataAccess.Netcore.AssemblyInfoInputs.cache
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess.Netcore\obj\Debug\net6.0\DataAccess.Netcore.AssemblyInfo.cs
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess.Netcore\obj\Debug\net6.0\DataAccess.Netcore.csproj.CoreCompileInputs.cache
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess.Netcore\obj\Debug\net6.0\DataAccess.Netcore.sourcelink.json
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess.Netcore\obj\Debug\net6.0\DataAccess.Netcore.dll
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess.Netcore\obj\Debug\net6.0\refint\DataAccess.Netcore.dll
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess.Netcore\obj\Debug\net6.0\DataAccess.Netcore.pdb
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess.Netcore\obj\Debug\net6.0\DataAccess.Netcore.genruntimeconfig.cache
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess.Netcore\obj\Debug\net6.0\ref\DataAccess.Netcore.dll

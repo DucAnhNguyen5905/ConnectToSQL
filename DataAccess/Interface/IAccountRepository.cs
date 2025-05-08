@@ -21,6 +21,10 @@ namespace DataAccess.Interface
         ResponseData ImportAccountbyExcel(string filepath, out List<string> errorDetails);
 
         ResponseData ResetPassword(AccountDTO accountDTO);
+
+        ResponseData ChangeStatus(AccountDTO accountDTO);
+
+        ResponseData ForgotPassword(AccountDTO accountDTO);
         List<AccountDTO> GetAccountList(AccountGetListInputData accountinput);
     }
 }

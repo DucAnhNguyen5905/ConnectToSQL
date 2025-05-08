@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "yVbBsUi39fZJLinF7zZNvd+4s/xJ2AkhMovirE5wtbk=",
+  "Source": "NETCORE.API",
+  "BasePath": "_content/NETCORE.API",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

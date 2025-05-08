@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Security.Principal;
+using DataAccess.DBHelper;
 using DataAccess.DO;
 using DataAccess.DO.Request_data;
 using DataAccess.Interface;
@@ -29,6 +31,7 @@ class Program
             Console.WriteLine("9. Cap nhat thong tin tai khoan");
             Console.WriteLine("10. Quen mat khau");
             Console.WriteLine("11. Reset mat khau");
+            Console.WriteLine("12. Thay doi trang thai tai khoan");
             Console.Write("Chon chuc nang: ");
             string choice = Console.ReadLine();
 
@@ -149,10 +152,13 @@ class Program
                     CapNhatTaiKhoan(accountRepo);
                     break;
                 case "10":
-                    QuenMatKhau(emailSender);
+                    QuenMatKhau(accountRepo);
                     break;
                 case "11":
                     ResetMatkhau(accountRepo);
+                    break;
+                case "12":
+                    DoiTrangThai(accountRepo);
                     break;
                 default:
                     Console.WriteLine("Lua chon khong hop le. Vui long thu lai.");
@@ -164,50 +170,59 @@ class Program
     }
 
 
-    static void QuenMatKhau(EmailSender emailSender)
+    static void QuenMatKhau(IAccountRepository accountRepo)
     {
-        string adminEmail = "ducanhnguyen5905@gmail.com";   // Email admin
-        string adminPassword = "zmor riri qpfb cjdo"; // Mật khẩu ứng dụng 
-        string otpCode = emailSender.GenerateOTP(); // Tạo mã OTP
+        Console.Write("Nhập email của bạn: ");
+        string userEmail = Console.ReadLine();
 
-        // Gửi mã OTP đến email
-        emailSender.SendEmail(adminEmail, adminPassword, adminEmail, otpCode);
+        AccountDTO accountDTO = new AccountDTO { Email = userEmail };
+        ResponseData response = accountRepo.ForgotPassword(accountDTO);
 
-        // Nhập mã OTP
-        Console.Write("Nhap ma OTP: ");
-        string userInput = Console.ReadLine();
-
-        // Kiểm tra OTP
-        if (userInput == otpCode)
+        if (response.responseCode == 1) // Đã đổi từ 0 thành 1
         {
-            Console.WriteLine(" Xac thuc thanh cong. Hay nhap mat khau moi:");
+            Console.WriteLine("Mã OTP đã được gửi đến email của bạn.");
+            Console.Write("Nhập mã OTP: ");
+            string userInputOTP = Console.ReadLine();
 
-            // Nhập và xác nhận mật khẩu mới
-            string newPassword;
-            while (true)
+            // Kiểm tra OTP từ database thay vì so sánh trực tiếp
+            bool isOtpValid = DatabaseHelper.CheckOTP(userEmail, userInputOTP);
+            if (isOtpValid)
             {
-                Console.Write("Nhap mat khau moi: ");
-                newPassword = Console.ReadLine();
+                Console.WriteLine("Xác thực thành công. Hãy nhập mật khẩu mới:");
 
-                Console.Write("Xac nhan mat khau moi: ");
-                string confirmPassword = Console.ReadLine();
+                string newPassword;
+                while (true)
+                {
+                    Console.Write("Nhập mật khẩu mới: ");
+                    newPassword = Console.ReadLine();
 
-                if (newPassword == confirmPassword)
-                {
-                    Console.WriteLine(" Mat khau duoc dat lai thanh cong!");
-                    break;
+                    Console.Write("Xác nhận mật khẩu mới: ");
+                    string confirmPassword = Console.ReadLine();
+
+                    if (newPassword == confirmPassword)
+                    {
+                        DatabaseHelper.UpdatePassword(userEmail, newPassword);
+                        Console.WriteLine("Mật khẩu đã được đặt lại thành công!");
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Mật khẩu không khớp, vui lòng thử lại.");
+                    }
                 }
-                else
-                {
-                    Console.WriteLine("Mat khau khong khop, vui long thu lai.");
-                }
+            }
+            else
+            {
+                Console.WriteLine("Mã OTP không hợp lệ.");
             }
         }
         else
         {
-            Console.WriteLine("Ma OTP khong hop le.");
+            Console.WriteLine($"Lỗi: {response.responseMessage}");
         }
     }
+
+
     static int DangNhap(IAccountRepository accountRepo, AccountDTO account)
     {
 
@@ -523,6 +538,55 @@ class Program
         // Xử lý kết quả
         Console.WriteLine(result.responseCode == 1 ? "Cap nhat thanh cong!" : $"Loi: {result.responseMessage}");
     }
+
+    static void DoiTrangThai(IAccountRepository accountRepo)
+    {
+        Console.WriteLine("Nhap ID can thay doi trang thai: ");
+        string input = Console.ReadLine()?.Trim();
+
+        // Kiểm tra ID có hợp lệ không
+        if (!int.TryParse(input, out int idinput))
+        {
+            Console.WriteLine("ID khong hop le!");
+            return;
+        }
+
+        // Lấy thông tin người dùng hiện tại
+        int RoleID = SessionManager.Instance.RoleID;
+
+        Console.WriteLine($"Ban dang cap nhat tai khoan co ID la: {idinput}");
+        Console.WriteLine("Chon muc can cap nhat:");
+        Console.WriteLine("0. Mo tai khoan");
+        Console.WriteLine("1. Khoa tam thoi");
+        Console.WriteLine("2. Khoa tai khoan");
+
+        Console.Write("Nhap lua chon: ");
+
+        int choice;
+        if (!int.TryParse(Console.ReadLine(), out choice) || choice < 0 || choice > 2)
+        {
+            Console.WriteLine("Lua chon khong hop le!");
+            return;
+        }
+
+        // Xác định trạng thái mới
+        int newStatus = choice == 0 ?  1 : 2;  // Đảm bảo chọn trạng thái hợp lệ
+
+        // Tạo đối tượng AccountDTO để cập nhật trạng thái
+        AccountDTO changSta = new AccountDTO
+        {
+            UserID = idinput,
+            CurrentStatus = newStatus, // Đây là trạng thái hiện tại
+            NewStatus = newStatus // Cập nhật trạng thái mới
+        };
+
+        // Gọi phương thức cập nhật trạng thái trong repository
+        ResponseData result = accountRepo.ChangeStatus(changSta);
+
+        // Xử lý kết quả
+        Console.WriteLine(result.responseCode == 1 ? "Thay doi thanh cong !" : $"Loi: {result.responseMessage}");
+    }
+
 
 
 

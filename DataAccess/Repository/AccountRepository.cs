@@ -30,7 +30,10 @@ namespace DataAccess.Repository
 
                     // Thêm tham số đầu vào
                     command.Parameters.AddWithValue("@Username", account.UserName);
-                    command.Parameters.Add(new SqlParameter("@Password", SqlDbType.VarChar) { Value = account.PassWord ?? (object)DBNull.Value });
+                    command.Parameters.Add(new SqlParameter("@Password", SqlDbType.NVarChar, 50)  // Đã sửa thành SqlDbType.NVarChar
+                    {
+                        Value = account.PassWord ?? (object)DBNull.Value
+                    });
 
                     // Tham số OUTPUT cho mã phản hồi
                     SqlParameter outputResponseCode = new SqlParameter("@ResponseCode", SqlDbType.Int)
@@ -39,6 +42,13 @@ namespace DataAccess.Repository
                     };
                     command.Parameters.Add(outputResponseCode);
 
+                    // Tham số OUTPUT cho CurrentStatus
+                    SqlParameter outputStatus = new SqlParameter("@CurrentStatus", SqlDbType.NVarChar, 20)  // Đã sửa thành NVARCHAR(20)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    command.Parameters.Add(outputStatus);
+
                     // Tham số OUTPUT cho RoleID
                     SqlParameter outputRoleID = new SqlParameter("@RoleID", SqlDbType.Int)
                     {
@@ -46,27 +56,47 @@ namespace DataAccess.Repository
                     };
                     command.Parameters.Add(outputRoleID);
 
-                    command.ExecuteReader();
+                    // Thực thi lệnh
+                    command.ExecuteNonQuery(); // ExecuteNonQuery là tốt hơn nếu không cần kết quả trả về
 
+                    // Lấy kết quả từ các tham số OUTPUT
                     responseCode = Convert.ToInt32(outputResponseCode.Value);
                     roleID = outputRoleID.Value != DBNull.Value ? Convert.ToInt32(outputRoleID.Value) : -1;
 
-                    if (responseCode == 1)
+                    // Xử lý kết quả
+                    switch (responseCode)
                     {
-                        // Lưu vào session
-                        SessionManager.Instance.SetUserSession(account.UserName, roleID);
-
-                        Console.WriteLine($"Chuc mung {account.UserName}, ban da dang nhap thanh cong voi RoleID: {roleID}");
+                        case 1:
+                            // Lưu vào session
+                            SessionManager.Instance.SetUserSession(account.UserName, roleID, account.CurrentStatus);
+                            Console.WriteLine($"Chuc mung {account.UserName}, ban da dang nhap thanh cong voi RoleID: {roleID}");
+                            break;
+                        case -2:
+                            Console.WriteLine("Lỗi: Ban da nhap sai mat khau.");
+                            break;
+                        case -3:
+                            Console.WriteLine("Lỗi: Khong tim thay nguoi dung nay.");
+                            break;
+                        case -4:
+                            // Xử lý tài khoản bị khóa
+                            SessionManager.Instance.SetUserSession(account.UserName, roleID, account.CurrentStatus);
+                            Console.WriteLine("Lỗi: Tai khoan da bi khoa!");
+                            break;
+                        default:
+                            Console.WriteLine("Lỗi: Hệ thống lỗi!");
+                            break;
                     }
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception($"Loi he thong: {ex.Message}");
+                // Cung cấp thông tin lỗi chi tiết để dễ dàng gỡ lỗi
+                throw new Exception($"Lỗi hệ thống: {ex.Message}", ex);
             }
 
             return responseCode;
         }
+
 
         public int Account_Insert(AccountDTO accountDTO)
         {
@@ -299,9 +329,68 @@ namespace DataAccess.Repository
             return responseData;
         }
 
-        public ResponseData ResetPassword(AccountDTO accountDTO)
+        public ResponseData ForgotPassword(AccountDTO accountDTO)
+        {
+            ResponseData responseData = new ResponseData { responseCode = -1, responseMessage = "Lỗi không xác định" };
+
+            try
+            {
+                if (string.IsNullOrEmpty(accountDTO.Email))
+                {
+                    responseData.responseMessage = "Email không được để trống";
+                    return responseData;
+                }
+
+                // Kiểm tra email có tồn tại không
+                bool emailExists = DatabaseHelper.CheckEmailExists(accountDTO.Email);
+                if (!emailExists)
+                {
+                    responseData.responseMessage = "Email không tồn tại trong hệ thống";
+                    return responseData;
+                }
+
+                // Tạo OTP ngẫu nhiên
+                string otp = new Random().Next(100000, 999999).ToString();
+
+                // Lấy UserID từ email (nếu chưa có trong AccountDTO)
+                int userID = DatabaseHelper.GetUserIDByEmail(accountDTO.Email);
+
+                // Kiểm tra nếu UserID hợp lệ mới lưu OTP
+                if (userID > 0)
+                {
+                    DatabaseHelper.SaveOTP(userID, accountDTO.Email, otp);
+
+                    // Gửi email chứa OTP
+                    EmailService.SendOTP(accountDTO.Email, otp);
+
+                    responseData.responseCode = 1; // Thành công
+                    responseData.responseMessage = "OTP đã được gửi đến email của bạn";
+                    responseData.Data = otp; // Trả OTP (có thể bỏ nếu không muốn hiển thị OTP)
+                }
+                else
+                {
+                    responseData.responseMessage = "Không tìm thấy UserID tương ứng với email";
+                }
+            }
+            catch (Exception ex)
+            {
+                responseData.responseMessage = "Đã xảy ra lỗi: " + ex.Message;
+            }
+
+            return responseData;
+        }
+
+
+
+
+
+
+
+
+        public ResponseData ChangeStatus(AccountDTO accountDTO)
         {
             ResponseData responseData = new ResponseData { responseCode = -1, responseMessage = "Loi khong xac dinh" };
+
             // Kiểm tra nếu người dùng chưa đăng nhập
             string currentUser = SessionManager.Instance.Username;
             if (string.IsNullOrEmpty(currentUser))
@@ -313,6 +402,95 @@ namespace DataAccess.Repository
 
             try
             {
+
+                using (var connection = DatabaseHelper.GetOpenConnection())
+                {
+                    using (var command = new SqlCommand("SP_Account_ChangeStatus", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+
+                        // Thêm tham số id cần cập nhật trạng thái
+                        command.Parameters.Add(new SqlParameter("@UserID", SqlDbType.Int)
+                        {
+                            Value = accountDTO.UserID
+                        });
+
+                        // Vai trò của người thực hiện
+                        command.Parameters.Add(new SqlParameter("@RoleID", SqlDbType.Int)
+                        {
+                            Value = SessionManager.Instance.RoleID
+                        });
+
+                        // Tham số OUTPUT cho CurrentStatus
+                        SqlParameter outputStatus = new SqlParameter("@CurrentStatus", accountDTO.CurrentStatus)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+                        command.Parameters.Add(outputStatus);
+
+                        // Trạng thái mới
+                        command.Parameters.Add(new SqlParameter("@NewStatus", SqlDbType.NVarChar, 50)
+                        {
+                            Value = accountDTO.NewStatus
+                        });
+
+                        // Thêm tham số OUTPUT
+                        SqlParameter outputParam = new SqlParameter("@Responsecode", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+
+                        command.Parameters.Add(outputParam);
+
+                        command.ExecuteNonQuery();
+
+                        object responseValue = command.Parameters["@Responsecode"].Value;
+                        responseData.responseCode = responseValue != DBNull.Value ? Convert.ToInt32(responseValue) : 0;
+
+                        switch (responseData.responseCode)
+                        {
+                            case 1: responseData.responseMessage = "Thay doi trang thai thanh cong"; break;
+                            case 0: responseData.responseMessage = "Ban khong co quyen thuc hien !"; break;
+                            case -2: responseData.responseMessage = "ID khong ton tai"; break;
+                            case -3: responseData.responseMessage = "Trang thai van giu nguyen!"; break;
+                            case -4: responseData.responseMessage = "Khong thay thay doi!"; break;
+                            default: responseData.responseMessage = "Loi khong xac dinh"; break;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                responseData.responseMessage = "Loi he thong: " + ex.Message;
+                Console.WriteLine($"Exception: {ex}");
+            }
+
+            return responseData;
+        }
+
+        public ResponseData ResetPassword(AccountDTO accountDTO)
+        {
+            ResponseData responseData = new ResponseData { responseCode = -1, responseMessage = "Loi khong xac dinh" };
+
+            // Kiểm tra nếu người dùng chưa đăng nhập
+            string currentUser = SessionManager.Instance.Username;
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                responseData.responseCode = -1;
+                responseData.responseMessage = "Ban chua dang nhap?!";
+                return responseData;
+            }
+
+            try
+            {
+                // Kiểm tra nếu mật khẩu mới trống
+                if (string.IsNullOrEmpty(accountDTO.NewPassword))
+                {
+                    responseData.responseCode = -5; // Mã lỗi tùy chọn cho mật khẩu trống
+                    responseData.responseMessage = "Mật khẩu mới không thể để trống!";
+                    return responseData;
+                }
+
                 using (var connection = DatabaseHelper.GetOpenConnection())
                 {
                     using (var command = new SqlCommand("SP_Account_ResetPassword", connection))
@@ -362,25 +540,26 @@ namespace DataAccess.Repository
 
                         switch (responseData.responseCode)
                         {
-                            case 1: responseData.responseMessage = "Dat lai mat khau thanh cong"; break;
-                            case 0: responseData.responseMessage = "Ban khong co quyen thuc hien !"; break;
-                            case -2: responseData.responseMessage = "ID khong ton tai"; break;
-                            case -3: responseData.responseMessage = "Password nay da ton tai!"; break;
-                            case -4: responseData.responseMessage = "Khong thay thay doi!"; break;
-                            default: responseData.responseMessage = "Loi khong xac dinh"; break;
+                            case 1: responseData.responseMessage = "Đặt lại mật khẩu thành công"; break;
+                            case 0: responseData.responseMessage = "Bạn không có quyền thực hiện!"; break;
+                            case -2: responseData.responseMessage = "ID không tồn tại"; break;
+                            case -3: responseData.responseMessage = "Mật khẩu này đã tồn tại!"; break;
+                            case -4: responseData.responseMessage = "Không thay đổi mật khẩu!"; break;
+                            case -5: responseData.responseMessage = "Mật khẩu mới không thể để trống!"; break; // Thêm thông báo lỗi cho trường hợp mật khẩu mới trống
+                            default: responseData.responseMessage = "Lỗi không xác định"; break;
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                responseData.responseMessage = "Loi he thong: " + ex.Message;
+                responseData.responseMessage = "Lỗi hệ thống: " + ex.Message;
                 Console.WriteLine($"Exception: {ex}");
             }
 
-
             return responseData;
         }
+
         public ResponseData ImportAccountbyExcel(string filePath, out List<string> danhSachLoi)
         {
             ResponseData phanHoi = new ResponseData();
@@ -498,6 +677,8 @@ namespace DataAccess.Repository
             };
         }
 
+
+
         public List<AccountDTO> GetAccountList(AccountGetListInputData accountinput)
         {
             List<AccountDTO> accountDTOs = new List<AccountDTO>();
@@ -554,6 +735,7 @@ namespace DataAccess.Repository
             return accountDTOs;
         }
 
+        
 
     }
 }
