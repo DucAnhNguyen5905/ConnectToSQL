@@ -19,6 +19,8 @@ namespace DataAccess.Netcore.IRepository
 
         Task<ReturnData> Account_Update(AccountUpdateRequest requestData);
 
+        Task<ReturnData> Account_Insert(AccountInsertRequest requestData);
+
 
     }
 

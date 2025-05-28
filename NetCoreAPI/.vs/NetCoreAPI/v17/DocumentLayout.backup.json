@@ -3,6 +3,9 @@
   "WorkspaceRootPath": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\NetCoreAPI\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{800747E0-E176-491B-8AB2-18D0C36F9F57}|..\\Class1\\Class1.csproj|c:\\users\\lenovo\\source\\repos\\c#coban\\class1\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{8C1E561B-65A5-4BAC-8984-83157C886E82}|NetCoreAPI.csproj|c:\\users\\lenovo\\source\\repos\\c#coban\\netcoreapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8C1E561B-65A5-4BAC-8984-83157C886E82}|NetCoreAPI.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -22,11 +25,24 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
+              "Title": "Class1.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\Class1\\Class1.cs",
+              "RelativeDocumentMoniker": "..\\Class1\\Class1.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\Class1\\Class1.cs",
+              "RelativeToolTip": "..\\Class1\\Class1.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-11T14:05:58.201Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "MiddlewareExtension.cs",
               "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\NetCoreAPI\\MyMiddleware\\MiddlewareExtension.cs",
               "RelativeDocumentMoniker": "MyMiddleware\\MiddlewareExtension.cs",
@@ -34,12 +50,11 @@
               "RelativeToolTip": "MyMiddleware\\MiddlewareExtension.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-09T08:53:02.821Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-04-09T08:53:02.821Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "MiddleWare.cs",
               "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\NetCoreAPI\\MyMiddleware\\MiddleWare.cs",
               "RelativeDocumentMoniker": "MyMiddleware\\MiddleWare.cs",
@@ -47,12 +62,11 @@
               "RelativeToolTip": "MyMiddleware\\MiddleWare.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-09T08:29:44.251Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-04-09T08:29:44.251Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\NetCoreAPI\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",

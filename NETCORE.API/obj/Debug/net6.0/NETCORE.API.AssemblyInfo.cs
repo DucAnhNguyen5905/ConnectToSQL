@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NETCORE.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+157ec375bd3db9373ebc46c41a4fb577940057d2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8cbf097c766e11d1cff2a996a74f265e058cee7c")]
 [assembly: System.Reflection.AssemblyProductAttribute("NETCORE.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NETCORE.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

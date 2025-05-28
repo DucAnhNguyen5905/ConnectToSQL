@@ -1,0 +1,12 @@
+C:\Users\LENOVO\source\repos\C#CoBan\CommonNetCore\bin\Debug\net6.0\CommonNetCore.deps.json
+C:\Users\LENOVO\source\repos\C#CoBan\CommonNetCore\bin\Debug\net6.0\CommonNetCore.dll
+C:\Users\LENOVO\source\repos\C#CoBan\CommonNetCore\bin\Debug\net6.0\CommonNetCore.pdb
+C:\Users\LENOVO\source\repos\C#CoBan\CommonNetCore\obj\Debug\net6.0\CommonNetCore.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\LENOVO\source\repos\C#CoBan\CommonNetCore\obj\Debug\net6.0\CommonNetCore.AssemblyInfoInputs.cache
+C:\Users\LENOVO\source\repos\C#CoBan\CommonNetCore\obj\Debug\net6.0\CommonNetCore.AssemblyInfo.cs
+C:\Users\LENOVO\source\repos\C#CoBan\CommonNetCore\obj\Debug\net6.0\CommonNetCore.csproj.CoreCompileInputs.cache
+C:\Users\LENOVO\source\repos\C#CoBan\CommonNetCore\obj\Debug\net6.0\CommonNetCore.sourcelink.json
+C:\Users\LENOVO\source\repos\C#CoBan\CommonNetCore\obj\Debug\net6.0\CommonNetCore.dll
+C:\Users\LENOVO\source\repos\C#CoBan\CommonNetCore\obj\Debug\net6.0\refint\CommonNetCore.dll
+C:\Users\LENOVO\source\repos\C#CoBan\CommonNetCore\obj\Debug\net6.0\CommonNetCore.pdb
+C:\Users\LENOVO\source\repos\C#CoBan\CommonNetCore\obj\Debug\net6.0\ref\CommonNetCore.dll

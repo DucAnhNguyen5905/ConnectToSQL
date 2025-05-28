@@ -22,14 +22,18 @@ namespace DataAccess.Netcore.UnitOfWork
             _accountGenericRepository = accountGenericRepository;
             _dbContext = dbContext;
         }
-        public void Dispose()
-        {
-            _dbContext.Dispose();
-        }
 
         public void SaveChanges()
         {
             _dbContext.SaveChanges();
+        }
+        public async Task<int> CompleteAsync()
+        {
+            return await _dbContext.SaveChangesAsync();
+        }
+        public void Dispose()
+        {
+            _dbContext.Dispose();
         }
     }
 }

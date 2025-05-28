@@ -15,8 +15,7 @@ namespace DataAccess.Netcore.UnitOfWork
         public IAccountGenericRepository _accountGenericRepository { get; set; }
         public CSharpCoBanDbContext _dbContext { get; set; }
         public void SaveChanges();
-
-
+        public Task<int> CompleteAsync();
         public void Dispose();
  
 

@@ -27,6 +27,22 @@
   },
   {
     "ContainingType": "NETCORE.API.Controllers.AccountController",
+    "Method": "Account_Insert",
+    "RelativePath": "api/Account/Account_Insert",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "requestData",
+        "Type": "DataAccess.Netcore.DO.AccountInsertRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "NETCORE.API.Controllers.AccountController",
     "Method": "Account_Login",
     "RelativePath": "api/Account/Account_Login",
     "HttpMethod": "POST",

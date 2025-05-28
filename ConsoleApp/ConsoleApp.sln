@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NETCORE.API", "..\NETCORE.A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccess.Netcore", "..\DataAccess.Netcore\DataAccess.Netcore.csproj", "{9AFF5410-022E-49E5-B3D4-3E45872941EC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonNetCore", "..\CommonNetCore\CommonNetCore.csproj", "{4C55CA08-3779-4726-AFE2-89432B929BF6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{9AFF5410-022E-49E5-B3D4-3E45872941EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9AFF5410-022E-49E5-B3D4-3E45872941EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9AFF5410-022E-49E5-B3D4-3E45872941EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C55CA08-3779-4726-AFE2-89432B929BF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C55CA08-3779-4726-AFE2-89432B929BF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C55CA08-3779-4726-AFE2-89432B929BF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C55CA08-3779-4726-AFE2-89432B929BF6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

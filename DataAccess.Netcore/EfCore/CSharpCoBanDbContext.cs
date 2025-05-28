@@ -12,14 +12,16 @@ namespace DataAccess.Netcore.EfCore
     {
         public CSharpCoBanDbContext(DbContextOptions<CSharpCoBanDbContext> options) : base(options)
         {
-
         }
-
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
         }
 
-        public DbSet<Account> account { get; set; } = null!;
+        public DbSet<Account> account { get; set; }
+        public DbSet<Function> function { get; set; } 
+        public DbSet<Permission> permission { get; set; } 
+
+        
     }
 }

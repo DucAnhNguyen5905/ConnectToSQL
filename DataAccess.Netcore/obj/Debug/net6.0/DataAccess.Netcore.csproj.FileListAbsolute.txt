@@ -13,3 +13,6 @@ C:\Users\LENOVO\source\repos\C#CoBan\DataAccess.Netcore\obj\Debug\net6.0\refint\
 C:\Users\LENOVO\source\repos\C#CoBan\DataAccess.Netcore\obj\Debug\net6.0\DataAccess.Netcore.pdb
 C:\Users\LENOVO\source\repos\C#CoBan\DataAccess.Netcore\obj\Debug\net6.0\DataAccess.Netcore.genruntimeconfig.cache
 C:\Users\LENOVO\source\repos\C#CoBan\DataAccess.Netcore\obj\Debug\net6.0\ref\DataAccess.Netcore.dll
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess.Netcore\bin\Debug\net6.0\CommonNetCore.dll
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess.Netcore\bin\Debug\net6.0\CommonNetCore.pdb
+C:\Users\LENOVO\source\repos\C#CoBan\DataAccess.Netcore\obj\Debug\net6.0\DataAcce.A91FE62B.Up2Date

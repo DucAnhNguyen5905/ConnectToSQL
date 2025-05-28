@@ -82,3 +82,10 @@ C:\Users\LENOVO\source\repos\C#CoBan\NETCORE.API\obj\Debug\net6.0\NETCORE.API.pd
 C:\Users\LENOVO\source\repos\C#CoBan\NETCORE.API\obj\Debug\net6.0\NETCORE.API.genruntimeconfig.cache
 C:\Users\LENOVO\source\repos\C#CoBan\NETCORE.API\obj\Debug\net6.0\ref\NETCORE.API.dll
 C:\Users\LENOVO\source\repos\C#CoBan\NETCORE.API\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\LENOVO\source\repos\C#CoBan\NETCORE.API\bin\Debug\net6.0\CommonNetCore.dll
+C:\Users\LENOVO\source\repos\C#CoBan\NETCORE.API\bin\Debug\net6.0\CommonNetCore.pdb
+C:\Users\LENOVO\source\repos\C#CoBan\NETCORE.API\bin\Debug\net6.0\Microsoft.Extensions.Caching.StackExchangeRedis.dll
+C:\Users\LENOVO\source\repos\C#CoBan\NETCORE.API\bin\Debug\net6.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\LENOVO\source\repos\C#CoBan\NETCORE.API\bin\Debug\net6.0\Newtonsoft.Json.dll
+C:\Users\LENOVO\source\repos\C#CoBan\NETCORE.API\bin\Debug\net6.0\Pipelines.Sockets.Unofficial.dll
+C:\Users\LENOVO\source\repos\C#CoBan\NETCORE.API\bin\Debug\net6.0\StackExchange.Redis.dll

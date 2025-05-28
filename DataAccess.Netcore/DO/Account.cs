@@ -20,8 +20,9 @@ namespace DataAccess.Netcore.DO
 
         public string? Fullname { get; set; }
 
-        public int Isadmin { get; set; }
+        public int? Isadmin { get; set; }
 
 
     }
-}
+}   
+
