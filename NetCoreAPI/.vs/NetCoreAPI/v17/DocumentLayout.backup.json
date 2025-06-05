@@ -3,19 +3,57 @@
   "WorkspaceRootPath": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\NetCoreAPI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{800747E0-E176-491B-8AB2-18D0C36F9F57}|..\\Class1\\Class1.csproj|c:\\users\\lenovo\\source\\repos\\c#coban\\class1\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{8C1E561B-65A5-4BAC-8984-83157C886E82}|NetCoreAPI.csproj|c:\\users\\lenovo\\source\\repos\\c#coban\\netcoreapi\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C1E561B-65A5-4BAC-8984-83157C886E82}|NetCoreAPI.csproj|solutionrelative:controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D3A2A6A3-9141-4952-9714-A137B3E5068B}|..\\DataAccessNetcore\\DataAccessNetcore.csproj|c:\\users\\lenovo\\source\\repos\\c#coban\\dataaccessnetcore\\repository\\accountrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D3A2A6A3-9141-4952-9714-A137B3E5068B}|..\\DataAccessNetcore\\DataAccessNetcore.csproj|c:\\users\\lenovo\\source\\repos\\c#coban\\dataaccessnetcore\\irepository\\iaccountrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D3A2A6A3-9141-4952-9714-A137B3E5068B}|..\\DataAccessNetcore\\DataAccessNetcore.csproj|c:\\users\\lenovo\\source\\repos\\c#coban\\dataaccessnetcore\\do\\accountdelete_requestdata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D3A2A6A3-9141-4952-9714-A137B3E5068B}|..\\DataAccessNetcore\\DataAccessNetcore.csproj|c:\\users\\lenovo\\source\\repos\\c#coban\\dataaccessnetcore\\do\\returndata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{8C1E561B-65A5-4BAC-8984-83157C886E82}|NetCoreAPI.csproj|c:\\users\\lenovo\\source\\repos\\c#coban\\netcoreapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8C1E561B-65A5-4BAC-8984-83157C886E82}|NetCoreAPI.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{8C1E561B-65A5-4BAC-8984-83157C886E82}|NetCoreAPI.csproj|c:\\users\\lenovo\\source\\repos\\c#coban\\netcoreapi\\mymiddleware\\custommiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C1E561B-65A5-4BAC-8984-83157C886E82}|NetCoreAPI.csproj|solutionrelative:mymiddleware\\custommiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D3A2A6A3-9141-4952-9714-A137B3E5068B}|..\\DataAccessNetcore\\DataAccessNetcore.csproj|c:\\users\\lenovo\\source\\repos\\c#coban\\dataaccessnetcore\\efcore\\csharpcobandbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D3A2A6A3-9141-4952-9714-A137B3E5068B}|..\\DataAccessNetcore\\DataAccessNetcore.csproj|c:\\users\\lenovo\\source\\repos\\c#coban\\dataaccessnetcore\\do\\users.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{8C1E561B-65A5-4BAC-8984-83157C886E82}|NetCoreAPI.csproj|c:\\users\\lenovo\\source\\repos\\c#coban\\netcoreapi\\mymiddleware\\middlewareextension.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8C1E561B-65A5-4BAC-8984-83157C886E82}|NetCoreAPI.csproj|solutionrelative:mymiddleware\\middlewareextension.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8C1E561B-65A5-4BAC-8984-83157C886E82}|NetCoreAPI.csproj|c:\\users\\lenovo\\source\\repos\\c#coban\\netcoreapi\\mymiddleware\\middleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8C1E561B-65A5-4BAC-8984-83157C886E82}|NetCoreAPI.csproj|solutionrelative:mymiddleware\\middleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{8C1E561B-65A5-4BAC-8984-83157C886E82}|NetCoreAPI.csproj|c:\\users\\lenovo\\source\\repos\\c#coban\\netcoreapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{8C1E561B-65A5-4BAC-8984-83157C886E82}|NetCoreAPI.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8C1E561B-65A5-4BAC-8984-83157C886E82}|NetCoreAPI.csproj|c:\\users\\lenovo\\source\\repos\\c#coban\\netcoreapi\\controllers\\weatherforecastcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C1E561B-65A5-4BAC-8984-83157C886E82}|NetCoreAPI.csproj|solutionrelative:controllers\\weatherforecastcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8C1E561B-65A5-4BAC-8984-83157C886E82}|NetCoreAPI.csproj|c:\\users\\lenovo\\source\\repos\\c#coban\\netcoreapi\\weatherforecast.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C1E561B-65A5-4BAC-8984-83157C886E82}|NetCoreAPI.csproj|solutionrelative:weatherforecast.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8C1E561B-65A5-4BAC-8984-83157C886E82}|NetCoreAPI.csproj|c:\\users\\lenovo\\source\\repos\\c#coban\\netcoreapi\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{8C1E561B-65A5-4BAC-8984-83157C886E82}|NetCoreAPI.csproj|solutionrelative:properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\Class1\\Class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -25,57 +63,198 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ReturnData.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\DataAccessNetcore\\DO\\ReturnData.cs",
+              "RelativeDocumentMoniker": "..\\DataAccessNetcore\\DO\\ReturnData.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\DataAccessNetcore\\DO\\ReturnData.cs",
+              "RelativeToolTip": "..\\DataAccessNetcore\\DO\\ReturnData.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAALAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-03T15:58:12.848Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "AccountDelete_RequestData.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\DataAccessNetcore\\DO\\AccountDelete_RequestData.cs",
+              "RelativeDocumentMoniker": "..\\DataAccessNetcore\\DO\\AccountDelete_RequestData.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\DataAccessNetcore\\DO\\AccountDelete_RequestData.cs",
+              "RelativeToolTip": "..\\DataAccessNetcore\\DO\\AccountDelete_RequestData.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-03T15:57:06.191Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "CsharpCobanDBContext.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\DataAccessNetcore\\EFCore\\CsharpCobanDBContext.cs",
+              "RelativeDocumentMoniker": "..\\DataAccessNetcore\\EFCore\\CsharpCobanDBContext.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\DataAccessNetcore\\EFCore\\CsharpCobanDBContext.cs",
+              "RelativeToolTip": "..\\DataAccessNetcore\\EFCore\\CsharpCobanDBContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-03T14:10:24.927Z"
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "AccountController.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\NetCoreAPI\\Controllers\\AccountController.cs",
+              "RelativeDocumentMoniker": "Controllers\\AccountController.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\NetCoreAPI\\Controllers\\AccountController.cs",
+              "RelativeToolTip": "Controllers\\AccountController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACEAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-02T17:24:50.845Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AccountRepository.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\DataAccessNetcore\\Repository\\AccountRepository.cs",
+              "RelativeDocumentMoniker": "..\\DataAccessNetcore\\Repository\\AccountRepository.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\DataAccessNetcore\\Repository\\AccountRepository.cs",
+              "RelativeToolTip": "..\\DataAccessNetcore\\Repository\\AccountRepository.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAuwD8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-02T15:46:28.767Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Users.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\DataAccessNetcore\\DO\\Users.cs",
+              "RelativeDocumentMoniker": "..\\DataAccessNetcore\\DO\\Users.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\DataAccessNetcore\\DO\\Users.cs",
+              "RelativeToolTip": "..\\DataAccessNetcore\\DO\\Users.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-02T15:42:03.65Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "IAccountRepository.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\DataAccessNetcore\\IRepository\\IAccountRepository.cs",
+              "RelativeDocumentMoniker": "..\\DataAccessNetcore\\IRepository\\IAccountRepository.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\DataAccessNetcore\\IRepository\\IAccountRepository.cs",
+              "RelativeToolTip": "..\\DataAccessNetcore\\IRepository\\IAccountRepository.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAwAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-02T15:40:23.239Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "WeatherForecastController.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\NetCoreAPI\\Controllers\\WeatherForecastController.cs",
+              "RelativeDocumentMoniker": "Controllers\\WeatherForecastController.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\NetCoreAPI\\Controllers\\WeatherForecastController.cs",
+              "RelativeToolTip": "Controllers\\WeatherForecastController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-31T07:00:30.549Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "WeatherForecast.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\NetCoreAPI\\WeatherForecast.cs",
+              "RelativeDocumentMoniker": "WeatherForecast.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\NetCoreAPI\\WeatherForecast.cs",
+              "RelativeToolTip": "WeatherForecast.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-31T07:00:18.239Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\NetCoreAPI\\appsettings.json",
+              "RelativeDocumentMoniker": "appsettings.json",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\NetCoreAPI\\appsettings.json",
+              "RelativeToolTip": "appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAABTAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-05-31T06:59:04.881Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "launchSettings.json",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\NetCoreAPI\\Properties\\launchSettings.json",
+              "RelativeDocumentMoniker": "Properties\\launchSettings.json",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\NetCoreAPI\\Properties\\launchSettings.json",
+              "RelativeToolTip": "Properties\\launchSettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-05-31T06:57:17.351Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
               "Title": "Class1.cs",
               "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\Class1\\Class1.cs",
               "RelativeDocumentMoniker": "..\\Class1\\Class1.cs",
               "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\Class1\\Class1.cs",
               "RelativeToolTip": "..\\Class1\\Class1.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-11T14:05:58.201Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-04-11T14:05:58.201Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 9,
               "Title": "MiddlewareExtension.cs",
               "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\NetCoreAPI\\MyMiddleware\\MiddlewareExtension.cs",
               "RelativeDocumentMoniker": "MyMiddleware\\MiddlewareExtension.cs",
               "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\NetCoreAPI\\MyMiddleware\\MiddlewareExtension.cs",
               "RelativeToolTip": "MyMiddleware\\MiddlewareExtension.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-04-09T08:53:02.821Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "MiddleWare.cs",
-              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\NetCoreAPI\\MyMiddleware\\MiddleWare.cs",
-              "RelativeDocumentMoniker": "MyMiddleware\\MiddleWare.cs",
-              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\NetCoreAPI\\MyMiddleware\\MiddleWare.cs",
-              "RelativeToolTip": "MyMiddleware\\MiddleWare.cs",
+              "DocumentIndex": 6,
+              "Title": "CustomMiddleWare.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\NetCoreAPI\\MyMiddleware\\CustomMiddleWare.cs",
+              "RelativeDocumentMoniker": "MyMiddleware\\CustomMiddleWare.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\NetCoreAPI\\MyMiddleware\\CustomMiddleWare.cs",
+              "RelativeToolTip": "MyMiddleware\\CustomMiddleWare.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-04-09T08:29:44.251Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 5,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\NetCoreAPI\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
               "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\C#CoBan\\NetCoreAPI\\Program.cs",
               "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-09T08:13:15.309Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-04-09T08:13:15.309Z"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
             }
           ]
         }

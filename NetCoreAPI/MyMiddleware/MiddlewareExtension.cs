@@ -6,7 +6,7 @@ namespace NetCoreAPI.MyMiddleware
     {
         public static IApplicationBuilder UseMyMiddleWare(this IApplicationBuilder builder)
         {
-            return builder.UseMiddleware<MiddleWare>();
+            return builder.UseMiddleware<CustomMiddleWare>();
         }
     }
 }

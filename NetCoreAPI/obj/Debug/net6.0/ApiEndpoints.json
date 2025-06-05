@@ -1,5 +1,31 @@
 [
   {
+    "ContainingType": "NetCoreAPI.Controllers.AccountController",
+    "Method": "AccountDelete",
+    "RelativePath": "api/Account/Account_Delete",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "requestData",
+        "Type": "DataAccessNetcore.DO.AccountDelete_RequestData",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "NetCoreAPI.Controllers.AccountController",
+    "Method": "Account_GetAll",
+    "RelativePath": "api/Account/Account_GetAll",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "NetCoreAPI.Controllers.WeatherForecastController",
     "Method": "Get",
     "RelativePath": "WeatherForecast",

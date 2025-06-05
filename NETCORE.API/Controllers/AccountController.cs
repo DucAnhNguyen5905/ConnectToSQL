@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using System.Net.Mail;
 using System.Net;
 using StackExchange.Redis;
+using static DataAccess.Netcore.DO.AcountLoginRequest;
 
 namespace NETCORE.API.Controllers
 {
@@ -196,24 +197,92 @@ namespace NETCORE.API.Controllers
         }
 
 
+        [HttpPost("Account_LogOut")]
+        [CSharpCoBanAuthorizeAttribute("Account_LogOut", "")]
+        public async Task<ActionResult> Account_LogOut(Account_LogOutRequestData requestData)
+        {
+            try
+            {
+                // Lấy được AccountID từ Filter 
+                var AccountID = UserManagerSession.AccountID;
 
+                // Lấy DeviceID 
+                // kết hợp User_Session_AccountID_DeviceID // User_Session_3_DEVICE_01
+                var keyCache = "User_sessions_" + AccountID + "_" + requestData.DeviceID;
+
+                // Xóa cái key User_Session_3_DEVICE_01 trong redis
+
+                _cache.Remove(keyCache);
+
+                return Ok(new { mes = "LogOut Thành công !" });
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
 
 
         [HttpPost("Account_Login")]
         public async Task<IActionResult> Account_Login(AcountLoginRequest requestData)
         {
             var result = new LoginReturnData();
+            var listKey = new List<string>();
             try
             {
-                //Check login
+                // Bước 0 :
+
+                // Kết nối đến Redis server (sửa lại nếu bạn dùng host/port khác)
+                ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost:6379");
+
+                // Lấy database (mặc định là DB 0)
+                IDatabase db = redis.GetDatabase();
+
+                // Lấy server object để có thể truy vấn key
+                // Lưu ý: cần biết rõ endpoint để tạo đối tượng server
+                var endpoints = redis.GetEndPoints();
+                IServer server = redis.GetServer(endpoints[0]);
+
+                // Lấy tất cả key (có thể thêm pattern nếu cần)
+                foreach (var key in server.Keys())
+                {
+                    listKey.Add(key.ToString().Substring(0, 5));
+                }
+
+
+
+                // bước 1: CheckLogin 
                 var resultLogin = await _unitOfWork._accountRepository.Account_Login(requestData);
                 if (resultLogin == null)
                 {
                     result.ResponseCode = -1;
-                    result.ResponseMessage = " Tai khoan khong ton tai !";
+                    result.ResponseMessage = "Tài khoản không tồn tại";
                     return Ok(result);
                 }
-                // tạo claims
+
+                // Kiểm tra số lượng Sessison 
+
+                var keySessions = "User_sessions_" + resultLogin.AccountID;
+
+                //  var CountKey = listKey.FindAll(s => s.Equals(keySessions)).Count;
+                var CountKey = 0;
+                if (listKey.Count > 0)
+                {
+                    foreach (var item in listKey)
+                    {
+                        if (item == keySessions) { CountKey++; }
+                    }
+                }
+                if (CountKey >= 2)
+                {
+                    result.ResponseCode = -21;
+                    result.ResponseMessage = "Tài khoản của bạn chỉ được phép đăng nhập trên 02 thiết bị ";
+                    return Ok(result);
+                }
+
+                // Bước 2 : Tạo claims 
+
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, resultLogin.UserName),
@@ -221,21 +290,44 @@ namespace NETCORE.API.Controllers
                     new Claim(ClaimTypes.GivenName, resultLogin.Fullname.ToString())
                 };
 
-                // tạo token
+                // Bước 3 : Tạo token
+
                 var newToken = CreateToken(claims);
 
                 var token = new JwtSecurityTokenHandler().WriteToken(newToken);
 
-                //Trao kết quả cho client
+
+                // bước 4: Lưu token vào database/Redis (nếu cần thiết)
+
+                var user_sessions = new User_Sessions
+                {
+                    AccountID = resultLogin.AccountID,
+                    Token = token,
+                    DeviceID = requestData.DeviceID,
+                    ExpriredTime = new JwtSecurityToken(token).ValidTo
+                };
+
+                var keyCaching = $"User_sessions_{resultLogin.AccountID}_{requestData.DeviceID}";
+                var options_cache = new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpiration = DateTime.Now.AddMinutes(30) // Thời gian hết hạn của token
+                };
+
+                var data_cache = JsonConvert.SerializeObject(user_sessions);
+
+                await _cache.SetStringAsync(keyCaching, data_cache, options_cache);
+
+                // Bước 4: Trao kết quả cho client
                 result.ResponseCode = 1;
-                result.ResponseMessage = " Dang nhap thanh cong !";
+                result.ResponseMessage = "Login Successful";
                 result.token = token;
-                result.UserName = resultLogin.UserName;
                 result.AccountID = resultLogin.AccountID;
+                result.UserName = resultLogin.UserName;
                 return Ok(result);
             }
             catch (Exception ex)
             {
+
                 throw ex;
             }
 
@@ -256,13 +348,90 @@ namespace NETCORE.API.Controllers
             return token;
         }
 
-        
+        [HttpPost("Upload_Ava")]
+        public async Task<IActionResult> UploadAvatar([FromForm] UploadFileInputDto input)
+        {
+            if (input.File == null || input.File.Length == 0)
+                return BadRequest("File null");
+
+            // Lưu vào thư mục Files (ngoài wwwroot)
+            var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "Files");
+
+            // Tạo thư mục nếu chưa có
+            if (!Directory.Exists(folderPath))
+                Directory.CreateDirectory(folderPath);
+
+            var filePath = Path.Combine(folderPath, input.File.FileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await input.File.CopyToAsync(stream);
+            }
+
+            // Trả về URL để truy cập ảnh
+            var fileUrl = $"{Request.Scheme}://{Request.Host}/Files/{input.File.FileName}";
+            return Ok(new { message = "Upload successful!", url = fileUrl });
+        }
+
+        [HttpPost("Account_UploadImage")]
+        public async Task<IActionResult> Account_UploadImage(AccountUploadImageRequest requestData)
+        {
+            var returnData = new ReturnData();
+            try
+            {
+                string imgPath = string.Empty;
+                if (requestData == null
+                    || string.IsNullOrEmpty(requestData.Base64ImageString))
+                {
+                    returnData.ResponseCode = -1;
+                    returnData.ResponseMessage = "Dữ liệu đầu vào không hợp lệ";
+                    return Ok(returnData);
+                }
+
+
+                var path = "files"; //Path
+
+                if (!System.IO.Directory.Exists(path))
+                {
+                    System.IO.Directory.CreateDirectory(path);
+                }
+                string imageName = Guid.NewGuid().ToString() + ".png";
+
+
+                //set the image path
+                imgPath = Path.Combine(path, imageName);
+                if (!requestData.Base64ImageString.Contains("data:image"))
+                {
+                    returnData.ResponseCode = -2;
+                    returnData.ResponseMessage = "Dữ liệu đầu vào không hợp lệ";
+                    return Ok(returnData);
+                }
+
+                requestData.Base64ImageString = requestData.Base64ImageString.Substring(requestData.Base64ImageString.LastIndexOf(',') + 1);
+                byte[] imageBytes = Convert.FromBase64String(requestData.Base64ImageString);
+                MemoryStream ms = new MemoryStream(imageBytes, 0, imageBytes.Length);
+                ms.Write(imageBytes, 0, imageBytes.Length);
+                System.Drawing.Image image = System.Drawing.Image.FromStream(ms, true);
+                image.Save(imgPath, System.Drawing.Imaging.ImageFormat.Png);
+
+                returnData.ResponseCode = 1;
+                returnData.ResponseMessage = imageName;
+
+                return Ok(returnData);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error uploading file: {ex.Message}");
+            }
+        }
 
 
 
 
 
 
-        
+
+
     }
 }

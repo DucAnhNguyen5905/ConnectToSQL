@@ -89,3 +89,6 @@ C:\Users\LENOVO\source\repos\C#CoBan\NETCORE.API\bin\Debug\net6.0\Microsoft.Exte
 C:\Users\LENOVO\source\repos\C#CoBan\NETCORE.API\bin\Debug\net6.0\Newtonsoft.Json.dll
 C:\Users\LENOVO\source\repos\C#CoBan\NETCORE.API\bin\Debug\net6.0\Pipelines.Sockets.Unofficial.dll
 C:\Users\LENOVO\source\repos\C#CoBan\NETCORE.API\bin\Debug\net6.0\StackExchange.Redis.dll
+C:\Users\LENOVO\source\repos\C#CoBan\NETCORE.API\bin\Debug\net6.0\EPPlus.dll
+C:\Users\LENOVO\source\repos\C#CoBan\NETCORE.API\bin\Debug\net6.0\System.Xml.XPath.XmlDocument.dll
+C:\Users\LENOVO\source\repos\C#CoBan\NETCORE.API\bin\Debug\net6.0\NETCORE.API.staticwebassets.runtime.json

@@ -11,6 +11,9 @@ using NETCORE.API.MiddleWare;
 
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -43,6 +46,41 @@ builder.Services.AddScoped<IAccountGenericRepository, AccountGenericRepository>(
 builder.Services.AddScoped<IFunctionRepository, FunctionRepository>();
 builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+
+});
+builder.Services.AddSwaggerGen(opt =>
+{
+    opt.SwaggerDoc("v1", new OpenApiInfo { Title = "DucAnh API", Version = "v1" });
+    opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "bearer"
+    });
+    opt.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type=ReferenceType.SecurityScheme,
+                    Id="Bearer"
+                }
+            },
+            new string[]{}
+        }
+    });
+});
+
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -55,6 +93,39 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
+builder.Services.AddDirectoryBrowser();
+
+//app.UseMiddleware<MyMiddleWare>();
+
+app.UseStaticFiles(new StaticFileOptions
+{ 
+    OnPrepareResponse = ctx =>
+    {
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Headers",
+            "Origin, X-Request-With, Content-Type, Accept" );
+    },
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "Files")),
+    RequestPath = "/Files"
+});
+
+var fileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, "Files"));
+var requestPath = "/Files";
+app.UseDirectoryBrowser(new DirectoryBrowserOptions
+{
+    FileProvider = fileProvider,
+    RequestPath = requestPath
+});
+app.UseStaticFiles();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "..", "Static-Files", "wwwroot")),
+    RequestPath = "/staticfiles"
+});
+
 app.MapControllers();
-app.UseMiddleware<MyMiddleWare>();
 app.Run();
+

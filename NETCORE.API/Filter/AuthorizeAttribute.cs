@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using DataAccess.Netcore.EfCore;
 using Microsoft.EntityFrameworkCore;
+using DataAccess.Netcore.DO;
 
 namespace NetCore.API.Filter
 {
@@ -46,56 +47,57 @@ namespace NetCore.API.Filter
 
 
                 }
-
-                // Laays functionID
-
-                var function = _dbcontext.function.FirstOrDefault(x => x.FunctionCode == _functionCode);
-                if (function == null || function.FunctionID <= 0)
+                UserManagerSession.AccountID = userId;
+                // Lấy functionID
+                if (!string.IsNullOrEmpty(_permission))
                 {
-                    context.HttpContext.Response.ContentType = "application/json";
-                    context.HttpContext.Response.StatusCode = (int)System.Net.HttpStatusCode.Unauthorized;
-                    context.Result = new JsonResult(new
+                    var function = _dbcontext.function.FirstOrDefault(x => x.FunctionCode == _functionCode);
+                    if (function == null || function.FunctionID <= 0)
                     {
-                        ReturnCode = System.Net.HttpStatusCode.Unauthorized,
-                        ReturnMessage = "Chức năng không tồn tại"
-                    });
+                        context.HttpContext.Response.ContentType = "application/json";
+                        context.HttpContext.Response.StatusCode = (int)System.Net.HttpStatusCode.Unauthorized;
+                        context.Result = new JsonResult(new
+                        {
+                            ReturnCode = System.Net.HttpStatusCode.Unauthorized,
+                            ReturnMessage = "Chức năng không tồn tại"
+                        });
 
-                    return;
-                }
-
-
-                // Check permission
-                var list = _dbcontext.permission.ToList() ;
-
-                var permission = _dbcontext.permission.FirstOrDefault(x => x.AccountID == userId
-                && x.FunctionID == function.FunctionID);
+                        return;
+                    }
 
 
+                    // Check permission
+                    var list = _dbcontext.permission.ToList();
+
+                    var permission = _dbcontext.permission.FirstOrDefault(x => x.AccountID == userId
+                    && x.FunctionID == function.FunctionID);
 
 
 
-                if (permission == null)
-                {
-                    context.HttpContext.Response.ContentType = "application/json";
-                    context.HttpContext.Response.StatusCode = (int)System.Net.HttpStatusCode.Unauthorized;
-                    context.Result = new JsonResult(new
+
+
+                    if (permission == null)
                     {
-                        ReturnCode = System.Net.HttpStatusCode.Unauthorized,
-                        ReturnMessage = "Bạn không có quyền thực hiện chức năng này"
-                    });
-                }
+                        context.HttpContext.Response.ContentType = "application/json";
+                        context.HttpContext.Response.StatusCode = (int)System.Net.HttpStatusCode.Unauthorized;
+                        context.Result = new JsonResult(new
+                        {
+                            ReturnCode = System.Net.HttpStatusCode.Unauthorized,
+                            ReturnMessage = "Bạn không có quyền thực hiện chức năng này"
+                        });
+                    }
 
-                if (_permission == "ISVIEWS" && permission != null && permission.IsView == 0)
-                {
-                    context.HttpContext.Response.ContentType = "application/json";
-                    context.HttpContext.Response.StatusCode = (int)System.Net.HttpStatusCode.Unauthorized;
-                    context.Result = new JsonResult(new
+                    if (_permission == "ISVIEWS" && permission != null && permission.IsView == 0)
                     {
-                        ReturnCode = System.Net.HttpStatusCode.Unauthorized,
-                        ReturnMessage = "Bạn không có quyền xem chức năng này"
-                    });
+                        context.HttpContext.Response.ContentType = "application/json";
+                        context.HttpContext.Response.StatusCode = (int)System.Net.HttpStatusCode.Unauthorized;
+                        context.Result = new JsonResult(new
+                        {
+                            ReturnCode = System.Net.HttpStatusCode.Unauthorized,
+                            ReturnMessage = "Bạn không có quyền xem chức năng này"
+                        });
+                    }
                 }
-
             }
 
             return ;

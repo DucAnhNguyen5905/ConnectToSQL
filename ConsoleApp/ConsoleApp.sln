@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccess.Netcore", "..\Da
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonNetCore", "..\CommonNetCore\CommonNetCore.csproj", "{4C55CA08-3779-4726-AFE2-89432B929BF6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StaticFiles", "..\Static Files\StaticFiles.csproj", "{83616FC5-B9F0-4DE5-91CA-983FC640148C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{4C55CA08-3779-4726-AFE2-89432B929BF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4C55CA08-3779-4726-AFE2-89432B929BF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4C55CA08-3779-4726-AFE2-89432B929BF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83616FC5-B9F0-4DE5-91CA-983FC640148C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83616FC5-B9F0-4DE5-91CA-983FC640148C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83616FC5-B9F0-4DE5-91CA-983FC640148C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83616FC5-B9F0-4DE5-91CA-983FC640148C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

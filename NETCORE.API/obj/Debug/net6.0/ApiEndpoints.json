@@ -59,6 +59,22 @@
   },
   {
     "ContainingType": "NETCORE.API.Controllers.AccountController",
+    "Method": "Account_LogOut",
+    "RelativePath": "api/Account/Account_LogOut",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "requestData",
+        "Type": "DataAccess.Netcore.DO.AcountLoginRequest\u002BAccount_LogOutRequestData",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "NETCORE.API.Controllers.AccountController",
     "Method": "Account_Update",
     "RelativePath": "api/Account/Account_Update",
     "HttpMethod": "POST",
@@ -69,6 +85,38 @@
         "Name": "requestData",
         "Type": "DataAccess.Netcore.DO.AccountUpdateRequest",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "NETCORE.API.Controllers.AccountController",
+    "Method": "Account_UploadImage",
+    "RelativePath": "api/Account/Account_UploadImage",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "requestData",
+        "Type": "DataAccess.Netcore.DO.AccountUploadImageRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "NETCORE.API.Controllers.AccountController",
+    "Method": "UploadAvatar",
+    "RelativePath": "api/Account/Upload_Ava",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "File",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
